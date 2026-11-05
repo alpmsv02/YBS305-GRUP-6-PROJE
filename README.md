@@ -1,8 +1,5 @@
 # YBS305 – Bölgesel Dağıtım Merkezinde Talep Odaklı Depo Yerleşimi ve Mağaza Dağıtım Planlaması
 
-Это мой 
-
-
 **Ders:** YBS305 İş Zekâsı ve Veri Madenciliği (2026–2027 Güz)
 **Öğretim Elemanı:** Ece Dalpolat
 **Grup:** 6
