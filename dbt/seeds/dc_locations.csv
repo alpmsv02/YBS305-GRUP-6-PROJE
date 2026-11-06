@@ -1,0 +1,5 @@
+dc_id,dc_name,dc_level,walmart_dc_number,city,state_id,latitude,longitude,source_note
+HUB,Merkez Hub – Bentonville AR,HUB,6094,Bentonville,AR,36.3729,-94.2088,"Walmart genel merkezi ve ilk dağıtım merkezi; merkez hub VARSAYIMI"
+CA,Kaliforniya Bölgesel DC – Porterville,RDC,6021,Porterville,CA,36.0652,-119.0168,"SPS Commerce Walmart DC list; Regional Distribution Center (1991)"
+TX,Teksas Bölgesel DC – New Braunfels,RDC,6016,New Braunfels,TX,29.7030,-98.1245,"SPS Commerce Walmart DC list; Regional Distribution Center"
+WI,Wisconsin Bölgesel DC – Beaver Dam,RDC,7039,Beaver Dam,WI,43.4578,-88.8373,"SPS Commerce Walmart DC list; Regional Distribution Center (2007)"
