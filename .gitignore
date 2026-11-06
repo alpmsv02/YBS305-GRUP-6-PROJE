@@ -18,3 +18,4 @@ logs/
 # gizli
 superset/.env
 *.log
+dbt/.user.yml
