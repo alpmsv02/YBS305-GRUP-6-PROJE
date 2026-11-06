@@ -9,7 +9,7 @@
 | Ad Soyad | GitHub | Sorumluluk |
 |---|---|---|
 | NURASYL UTEPBERGEN | alpmsv02 | Dokümantasyon, GitHub |
-| IBROKHIMKHUJA ASKARKHONOV | - | dbt / ETL |
+| IBROKHIMKHUJA ASKARKHONOV | ibrahimasqar | dbt / ETL |
 | MUKHAMMADAMIN YULDASHEV | yuldoshevm22 | Dashboard |
 
 ## Proje Amacı
