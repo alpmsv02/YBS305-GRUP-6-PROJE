@@ -4,6 +4,13 @@ wallmart.duckdns.org {
         root * /srv/dbt-docs
         file_server
     }
+    handle_path /downloads/* {
+        basic_auth {
+            grup6 $2a$14$9WywSL8G02LKhoUgxX.SIeWLWRmlW8JB67SPKdYmJ0rJjiNf53ZTq
+        }
+        root * /srv/downloads
+        file_server browse
+    }
     handle {
         reverse_proxy superset:8088
     }

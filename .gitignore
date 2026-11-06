@@ -19,3 +19,4 @@ logs/
 superset/.env
 *.log
 dbt/.user.yml
+superset/downloads/
