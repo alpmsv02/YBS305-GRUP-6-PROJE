@@ -84,10 +84,13 @@ models:
           combination_of_columns: [store_id, item_id]
     columns:
       - name: warehouse_zone
+        description: "Ürünün depoda yer aldığı sıcaklık veya kategori bölgesi (HOT/WARM/COLD)."
         tests: [not_null]
       - name: recommended_weekly_qty
+        description: "Mağazaya gönderilmesi önerilen haftalık toplam sevkiyat miktarı."
         tests: [not_null]
       - name: store_id
+        description: "Sevkiyatın yapılacağı mağazanın benzersiz kimlik numarası."
         tests:
           - relationships:
               to: ref('dim_store')
@@ -132,6 +135,7 @@ models:
     description: "Mağaza başına toplam maliyeti en küçükleyen teslimat sıklığı ve haftalık sefer planı."
     columns:
       - name: store_id
+        description: "Teslimatın planlandığı mağazanın benzersiz kimlik numarası."
         tests:
           - unique
           - not_null
@@ -139,15 +143,24 @@ models:
               to: ref('dim_store')
               field: store_id
       - name: optimal_deliveries_per_week
+        description: "Toplam maliyetleri en aza indiren haftalık optimum teslimat sıklığı."
         tests:
           - accepted_values:
               values: [1, 2, 3, 5, 7]
               quote: false
+      - name: dc_id
+        description: "Mağazaya ikmal yapan bölgesel dağıtım merkezinin kimlik numarası."
+        tests:
+          - relationships:
+              to: ref('dim_dc')
+              field: dc_id
 
   - name: mart_hub_supply_plan
     description: "Merkez hub → bölgesel DC haftalık ikmal planı: sefer sayısı, tedarik süresi, maliyet, yoldaki stok."
     columns:
       - name: dc_id
+        description: "İkmal edilen bölgesel dağıtım merkezinin kimlik numarası."
         tests: [unique, not_null]
       - name: trucks_per_week
+        description: "Merkez hub'dan bölgesel depoya planlanan haftalık tır seferi sayısı."
         tests: [not_null]
