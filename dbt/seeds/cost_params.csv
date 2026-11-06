@@ -1,0 +1,7 @@
+param,value,unit,source_note
+atri_cost_per_mile_2016,1.59,USD/mile,"ATRI Operational Costs of Trucking 2017 update (2016 verisi): toplam marjinal maliyet"
+atri_fuel_cost_per_mile_2016,0.336,USD/mile,"ATRI 2016: yakıt bileşeni (~%21)"
+truck_mpg,6.5,mile/gal,"Ağır tır ortalama yakıt tüketimi (varsayım)"
+truck_capacity_units,20000,unit/sefer,"53 ft römork ≈ 1.600 koli × ~12 birim (VARSAYIM)"
+holding_cost_rate_annual,0.25,oran/yıl,"Perakende stok taşıma maliyeti (sektör varsayımı %25)"
+handling_days_dc,1,gün,"DC'de mal kabul + ayrıştırma süresi (varsayım)"

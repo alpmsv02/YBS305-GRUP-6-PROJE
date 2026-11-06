@@ -1,0 +1,153 @@
+version: 2
+
+models:
+  - name: dim_product
+    description: "Ürün boyutu (SKU, departman, kategori)."
+    columns:
+      - name: item_id
+        tests: [unique, not_null]
+      - name: cat_id
+        tests:
+          - accepted_values:
+              values: ["FOODS", "HOBBIES", "HOUSEHOLD"]
+
+  - name: dim_store
+    description: "Mağaza boyutu; şehir/konum bilgisi varsayımdır (M5 mağazaları anonimdir)."
+    columns:
+      - name: store_id
+        tests: [unique, not_null]
+
+  - name: fct_sales_daily
+    description: "Günlük satış olgu tablosu: SKU × mağaza × gün; fiyat, ciro, takvim ve hava durumu bayrakları."
+    tests:
+      - dbt_utils_free_unique_combination:
+          combination_of_columns: [date_day, store_id, item_id]
+    columns:
+      - name: date_day
+        tests: [not_null]
+      - name: store_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_store')
+              field: store_id
+      - name: item_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: item_id
+      - name: sales_qty
+        tests: [not_null]
+
+  - name: fct_sales_weekly
+    description: "Haftalık satış olgu tablosu: SKU × mağaza × hafta. is_complete_week: haftanın 7 günü de veride var."
+    columns:
+      - name: is_complete_week
+        tests: [not_null]
+      - name: units
+        tests: [not_null]
+
+  - name: mart_sku_abc_xyz
+    description: "Depo yerleşimi marti: depo seviyesi (HUB, CA, TX, WI) × SKU için ABC/XYZ sınıfı, toplama sırası ve depo bölgesi (HOT/WARM/COLD)."
+    tests:
+      - dbt_utils_free_unique_combination:
+          combination_of_columns: [dc_id, item_id]
+    columns:
+      - name: dc_id
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["HUB", "CA", "TX", "WI"]
+      - name: item_id
+        tests: [not_null]
+      - name: abc_class
+        tests:
+          - accepted_values:
+              values: ["A", "B", "C"]
+      - name: xyz_class
+        tests:
+          - accepted_values:
+              values: ["X", "Y", "Z"]
+      - name: warehouse_zone
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["HOT", "WARM", "COLD"]
+      - name: picking_rank
+        tests: [not_null]
+
+  - name: mart_store_replenishment
+    description: "Mağaza sevkiyat planı: SKU × mağaza için önerilen haftalık sevkiyat miktarı ve emniyet stoku (bölgesel DC → mağaza)."
+    tests:
+      - dbt_utils_free_unique_combination:
+          combination_of_columns: [store_id, item_id]
+    columns:
+      - name: warehouse_zone
+        tests: [not_null]
+      - name: recommended_weekly_qty
+        tests: [not_null]
+      - name: store_id
+        tests:
+          - relationships:
+              to: ref('dim_store')
+              field: store_id
+
+  - name: mart_calendar_effects
+    description: "Kategori × gün tipi × hava tipi bazında talep artışı (lift)."
+    columns:
+      - name: lift_vs_baseline
+        tests: [not_null]
+
+  - name: dim_dc
+    description: "Dağıtım merkezi boyutu: merkez hub (Bentonville, varsayım) ve 3 bölgesel DC (gerçek Walmart RDC konumları)."
+    columns:
+      - name: dc_id
+        tests:
+          - unique
+          - not_null
+          - accepted_values:
+              values: ["HUB", "CA", "TX", "WI"]
+
+  - name: fct_route
+    description: "Lojistik ağ bacakları (HUB→DC, DC→STORE): OSRM mesafe/süre, tedarik süresi, ATRI + dizel bazlı sefer maliyeti."
+    tests:
+      - dbt_utils_free_unique_combination:
+          combination_of_columns: [origin_id, dest_id]
+    columns:
+      - name: round_trip_cost_usd
+        tests: [not_null]
+      - name: leg_type
+        tests:
+          - accepted_values:
+              values: ["HUB_TO_DC", "DC_TO_STORE"]
+
+  - name: mart_delivery_options
+    description: "DC→mağaza teslimat sıklığı seçenekleri (haftada 1/2/3/5/7) ve maliyet bileşenleri."
+    tests:
+      - dbt_utils_free_unique_combination:
+          combination_of_columns: [store_id, deliveries_per_week]
+
+  - name: mart_delivery_plan
+    description: "Mağaza başına toplam maliyeti en küçükleyen teslimat sıklığı ve haftalık sefer planı."
+    columns:
+      - name: store_id
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('dim_store')
+              field: store_id
+      - name: optimal_deliveries_per_week
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 5, 7]
+              quote: false
+
+  - name: mart_hub_supply_plan
+    description: "Merkez hub → bölgesel DC haftalık ikmal planı: sefer sayısı, tedarik süresi, maliyet, yoldaki stok."
+    columns:
+      - name: dc_id
+        tests: [unique, not_null]
+      - name: trucks_per_week
+        tests: [not_null]
