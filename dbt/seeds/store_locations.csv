@@ -1,0 +1,11 @@
+store_id,state_id,city,latitude,longitude
+CA_1,CA,Los Angeles,34.05,-118.24
+CA_2,CA,San Francisco,37.77,-122.42
+CA_3,CA,San Diego,32.72,-117.16
+CA_4,CA,Sacramento,38.58,-121.49
+TX_1,TX,Houston,29.76,-95.37
+TX_2,TX,Dallas,32.78,-96.80
+TX_3,TX,San Antonio,29.42,-98.49
+WI_1,WI,Milwaukee,43.04,-87.91
+WI_2,WI,Madison,43.07,-89.40
+WI_3,WI,Green Bay,44.51,-88.01
