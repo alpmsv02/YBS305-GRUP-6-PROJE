@@ -1,0 +1,11 @@
+dc_planning:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: ../data/warehouse/build/dc_planning.duckdb
+      threads: 2
+      settings:
+        memory_limit: "3GB"
+        threads: 2
+        preserve_insertion_order: false

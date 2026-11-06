@@ -1,0 +1,65 @@
+version: 2
+
+models:
+  - name: stg_calendar
+    description: "Temizlenmiş takvim: gün anahtarı (d_N), Walmart haftası, hafta sonu / etkinlik / SNAP bayrakları."
+    columns:
+      - name: date_day
+        description: "Takvim günü."
+        tests: [unique, not_null]
+      - name: day_key
+        description: "M5 gün anahtarı (d_1 … d_1969)."
+        tests: [unique, not_null]
+      - name: wm_yr_wk
+        description: "Walmart yıl-hafta kodu (ör. 11101)."
+        tests: [not_null]
+
+  - name: stg_sales_long
+    description: "Uzun formatta günlük satış adetleri (SKU × mağaza × gün). Sıfır satışlar dahil."
+    columns:
+      - name: item_id
+        tests: [not_null]
+      - name: store_id
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["CA_1", "CA_2", "CA_3", "CA_4", "TX_1", "TX_2", "TX_3", "WI_1", "WI_2", "WI_3"]
+      - name: day_key
+        tests: [not_null]
+      - name: sales_qty
+        description: "Satılan adet (>= 0)."
+        tests: [not_null]
+
+  - name: stg_prices
+    description: "SKU × mağaza × hafta satış fiyatı (USD)."
+    columns:
+      - name: sell_price
+        tests: [not_null]
+
+  - name: stg_weather
+    description: "Open-Meteo günlük hava durumu, mağaza bazında."
+    columns:
+      - name: store_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('store_locations')
+              field: store_id
+      - name: date_day
+        tests: [not_null]
+
+  - name: stg_routes
+    description: "OSRM yol mesafesi ve süresi: hub/DC/mağaza çiftleri."
+    columns:
+      - name: distance_km
+        tests: [not_null]
+      - name: leg_type
+        tests:
+          - accepted_values:
+              values: ["HUB_TO_DC", "DC_TO_STORE", "OTHER"]
+
+  - name: stg_diesel_prices
+    description: "Haftalık dizel fiyatları (EIA/FRED)."
+    columns:
+      - name: price_usd_gal
+        tests: [not_null]

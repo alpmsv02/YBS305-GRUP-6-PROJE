@@ -1,0 +1,34 @@
+name: dc_planning
+version: "1.0.0"
+profile: dc_planning
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Analiz kapsamı: merkez hub → 3 bölgesel DC (CA, TX, WI) → 10 mağaza, son 2 yıl
+  states: ["CA", "TX", "WI"]
+  first_day_idx: 1212   # d_1212 = 2014-05-24
+  last_day_idx: 1941    # d_1941 = 2016-05-22 (son satış günü)
+  abc_a_threshold: 0.80
+  abc_b_threshold: 0.95
+  xyz_x_threshold: 0.50
+  xyz_y_threshold: 1.00
+  service_level_z: 1.65 # %95 hizmet seviyesi
+
+models:
+  dc_planning:
+    staging:
+      +materialized: table   # CSV'ler göreli yolla okunduğundan view yerine tablo (Superset SQL Lab'dan da erişilebilir)
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  dc_planning:
+    +schema: staging
