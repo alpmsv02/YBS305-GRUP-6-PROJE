@@ -1,0 +1,14 @@
+wallmart.duckdns.org {
+    encode gzip
+    handle_path /dbt-docs/* {
+        root * /srv/dbt-docs
+        file_server
+    }
+    handle {
+        reverse_proxy superset:8088
+    }
+}
+
+superset.45-138-159-54.sslip.io {
+    redir https://wallmart.duckdns.org{uri} permanent
+}
