@@ -159,6 +159,9 @@ docker compose exec superset superset fab create-admin --username admin ...   # 
 | Nurasyl Utepbergen | [@alpmsv02](https://github.com/alpmsv02) | Dokümantasyon, GitHub (README, veri sözlüğü, repo düzeni) |
 | Ibrokhimkhuja Askarkhonov | [@ibrahimasqar](https://github.com/ibrahimasqar) | dbt / ETL (staging → mart modelleri, testler, dbt docs) |
 | Mukhammadamin Yuldashev | [@yuldoshevm22](https://github.com/yuldoshevm22) | Dashboard (Superset kurulumu, grafikler, sunucu/yayın) |
+| Tamimou Yari Dramane | [@dramanetamimouyari](https://github.com/dramanetamimouyari) | Test / kalite güvencesi (dashboard ve dbt test raporu, hata kayıtları) |
+| Alperen Kalafat | [@37alperen](https://github.com/37alperen) | Veri kaynakları ve varsayımlar (destek üye) |
+| Türkay Özer | [@turkayozer](https://github.com/turkayozer) | Analiz ve sunum (destek üye) |
 
 Grup 6 · Repo: https://github.com/alpmsv02/YBS305-GRUP-6-PROJE
 
