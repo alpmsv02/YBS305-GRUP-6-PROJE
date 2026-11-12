@@ -15,7 +15,7 @@ TALISMAN_ENABLED = False
 # ---------------- Marka / görünüm (Grup 6) ----------------
 APP_NAME = "DC Planning · Grup 6"
 APP_ICON = "/static/assets/images/custom/logo.svg"
-APP_ICON_WIDTH = 300
+APP_ICON_WIDTH = 190
 LOGO_TARGET_PATH = "/superset/dashboard/dc-planning/"
 LOGO_TOOLTIP = "Bölgesel Dağıtım Merkezi Planlama Dashboard'u"
 FAVICONS = [{"href": "/static/assets/images/custom/favicon.svg"}]
