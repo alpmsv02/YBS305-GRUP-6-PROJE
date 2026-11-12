@@ -13,7 +13,7 @@ SUPERSET_WEBSERVER_TIMEOUT = 120
 TALISMAN_ENABLED = False
 
 # ---------------- Marka / görünüm (Grup 6) ----------------
-APP_NAME = "Wallmart · DC Planning"
+APP_NAME = "Walmart · DC Planning"
 APP_ICON = "/static/assets/images/custom/logo.svg"
 APP_ICON_WIDTH = 190
 LOGO_TARGET_PATH = "/superset/dashboard/dc-planning/"

@@ -407,8 +407,7 @@ def main():
                      "expanded_slices": {}, "label_colors": {}, "timed_refresh_immune_slices": [], "cross_filters_enabled": True,
                      "default_filters": "{}", "chart_configuration": chart_cfg}
     css = """
-.dashboard-markdown { background:#F0F5FA; border-left:4px solid #1F4E79; border-radius:6px; padding:6px 14px; }
-.dashboard-component-chart-holder .header-title { color:#1F4E79; }
+.dashboard-markdown { padding:4px 12px; }
 """
     api.put(f"/dashboard/{dash_id}", {"position_json": json.dumps(L.pos), "json_metadata": json.dumps(json_metadata), "published": True, "css": css})
     print(f"dashboard ready: {a.base_url}/superset/dashboard/{DASH_SLUG}/")
