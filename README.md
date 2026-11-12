@@ -31,7 +31,7 @@ sıklığı ve hub → DC haftalık tır planı (tedarik süresi ve maliyetle bi
 |---|---|---|---|
 | 1 | **Kaggle M5 Forecasting – Accuracy** (Walmart) | 3.049 SKU × 10 mağaza (CA ×4, TX ×3, WI ×3) × 1.941 gün satış adedi; haftalık fiyatlar; takvim (etkinlik, SNAP) | Ana veri (omurga) |
 | 2 | **Open-Meteo Historical Weather API** | Mağaza şehirleri için günlük sıcaklık ve yağış | Talep üzerindeki hava etkisi |
-| 3 | **OSRM / OpenStreetMap** yol ağı (`/table` API) | Hub → DC → mağaza yol mesafesi (km) ve sürüş süresi | Tedarik süresi, sefer maliyeti, teslimat sıklığı |
+| 3 | **OSRM / OpenStreetMap** yol ağı (`/table` + `/route` API) | Hub → DC → mağaza karayolu mesafesi (km), sürüş süresi ve güzergâh geometrisi | Tedarik süresi, sefer maliyeti, teslimat sıklığı; haritada gerçek tır rotaları |
 | 4 | **EIA dizel fiyatları** (FRED üzerinden: GASDESW, GASDESGCW, GASDESMWW) | Haftalık bölgesel dizel fiyatı (USD/gal) | Sefer maliyetinin yakıt bileşeni |
 | 5 | **ATRI – Operational Costs of Trucking (2016)** | Tır başına mil maliyeti ($1,59/mil; yakıt $0,336/mil) | Sefer maliyeti parametreleri (`dbt/seeds/cost_params.csv`) |
 | 6 | **SPS Commerce Walmart DC listesi** | Gerçek Walmart bölgesel DC adresleri | DC konumları (`dbt/seeds/dc_locations.csv`) |
@@ -120,6 +120,7 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 # 1) Dış kaynaklar → data/external/
 python3 data/scripts/fetch_weather.py     # Open-Meteo
 python3 data/scripts/fetch_routes.py      # OSRM mesafe/süre matrisi
+python3 data/scripts/fetch_route_geometries.py   # OSRM karayolu güzergâhları (harita)
 python3 data/scripts/fetch_diesel.py      # FRED/EIA dizel fiyatları
 
 # 2) dbt: seed + run + test + docs; DuckDB dosyasını Superset'in okuduğu yere atomik olarak kopyalar

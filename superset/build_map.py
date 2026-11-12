@@ -81,8 +81,42 @@ def clean(o):
     return o
 
 
+# gerçek yol geometrileri (OSRM /route), Douglas-Peucker ile ~60 m toleransla sadeleştirilmiş
+def simplify(coords, tol=0.0006):
+    if len(coords) < 3:
+        return coords
+    def dist(pt, a, b):
+        (x, y), (x1, y1), (x2, y2) = pt, a, b
+        dx, dy = x2 - x1, y2 - y1
+        if dx == dy == 0:
+            return ((x - x1) ** 2 + (y - y1) ** 2) ** 0.5
+        t = max(0, min(1, ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy)))
+        return ((x - (x1 + t * dx)) ** 2 + (y - (y1 + t * dy)) ** 2) ** 0.5
+    stack, keep = [(0, len(coords) - 1)], [False] * len(coords)
+    keep[0] = keep[-1] = True
+    while stack:
+        i, j = stack.pop()
+        if j <= i + 1:
+            continue
+        k, dmax = i, 0
+        for m in range(i + 1, j):
+            dd = dist(coords[m], coords[i], coords[j])
+            if dd > dmax:
+                k, dmax = m, dd
+        if dmax > tol:
+            keep[k] = True; stack += [(i, k), (k, j)]
+    return [c for c, kp in zip(coords, keep) if kp]
+
+geo_path = ROOT / "data/external/route_geometries.geojson"
+routes = {}
+if geo_path.exists():
+    for f in json.loads(geo_path.read_text())["features"]:
+        pr = f["properties"]
+        routes[f"{pr['origin_id']}->{pr['dest_id']}"] = {"method": pr.get("method"),
+                                                        "latlngs": [[round(la, 5), round(lo, 5)] for lo, la in simplify(f["geometry"]["coordinates"])]}
+
 OUT.parent.mkdir(parents=True, exist_ok=True)
-OUT.write_text(json.dumps(clean({"dcs": dcs, "stores": stores, "totals": totals,
+OUT.write_text(json.dumps(clean({"dcs": dcs, "stores": stores, "totals": totals, "routes": routes,
                                  "generated_from": "dbt marts: mart_hub_supply_plan, mart_delivery_plan, mart_sku_abc_xyz, fct_route"}),
                           ensure_ascii=False, indent=1))
 print("wrote", OUT, len(dcs), "dcs", len(stores), "stores")

@@ -51,11 +51,11 @@
   <div class="item"><span class="dot hub"></span> Merkez hub (Bentonville, AR)</div>
   <div class="item"><span class="dot dc"></span> Bölgesel DC (gerçek Walmart RDC) — boyut: haftalık adet</div>
   <div class="item"><span class="dot"></span> Mağaza — boyut: haftalık sevkiyat, renk: bağlı DC</div>
-  <div class="item"><span class="sw"></span> Hub → DC: kalınlık = tır/hafta</div>
-  <div class="item"><span class="sw store"></span> DC → Mağaza: kalınlık = sefer/hafta</div>
+  <div class="item"><span class="sw"></span> Hub → DC: gerçek karayolu güzergâhı, kalınlık = tır/hafta</div>
+  <div class="item"><span class="sw store"></span> DC → Mağaza: gerçek karayolu güzergâhı, kalınlık = sefer/hafta</div>
   <div class="item" style="color:#5B7A99">Tıkla: ayrıntılı kart · Yakınlaştırınca mağaza etiketleri · Mesafeler OSRM/OSM</div>
 </div>
-<div id="note" class="panel">Kaynak: dbt mart'ları (mart_hub_supply_plan, mart_delivery_plan, mart_sku_abc_xyz, fct_route). Hub ve mağaza şehirleri varsayımdır; DC konumları gerçek Walmart RDC adresleridir.</div>
+<div id="note" class="panel">Kaynak: dbt mart'ları (mart_hub_supply_plan, mart_delivery_plan, mart_sku_abc_xyz, fct_route). Güzergâhlar OSRM (OpenStreetMap karayolu ağı) ile tır rotası olarak hesaplanmıştır. Hub ve mağaza şehirleri varsayımdır; DC konumları gerçek Walmart RDC adresleridir.</div>
 <script>
 const DC_COLORS = { CA: "#2E86AB", TX: "#C73E1D", WI: "#6A994E" };
 const fmt = (n, d=0) => n == null ? "–" : Number(n).toLocaleString("tr-TR", {maximumFractionDigits:d, minimumFractionDigits:d});
@@ -81,6 +81,10 @@ function arc(a, b, bend = 0.18, n = 48) {
   for (let i = 0; i <= n; i++) { const t = i / n, u = 1 - t;
     pts.push([u*u*lat1 + 2*u*t*cx + t*t*lat2, u*u*lon1 + 2*u*t*cy + t*t*lon2]); }
   return pts;
+}
+function roadPath(D, o, d, fallbackA, fallbackB) {
+  const r = (D.routes || {})[`${o}->${d}`];
+  return r && r.latlngs && r.latlngs.length > 1 ? r.latlngs : arc(fallbackA, fallbackB, 0.12);
 }
 function zonesBar(z) {
   const tot = (z.HOT?.skus||0)+(z.WARM?.skus||0)+(z.COLD?.skus||0) || 1;
@@ -127,7 +131,7 @@ fetch("data.json").then(r => r.json()).then(D => {
     const size = 16 + 18 * d.weekly_qty / maxQ;
     // hub -> DC arc
     const w = 2 + 1.2 * d.trucks_per_week;
-    L.polyline(arc([hub.latitude, hub.longitude], [d.latitude, d.longitude], 0.14), { color: "#F18F01", weight: w, opacity: .85, className: "flow" }).addTo(gHub).bindPopup(`
+    L.polyline(roadPath(D, "HUB", d.dc_id, [hub.latitude, hub.longitude], [d.latitude, d.longitude]), { color: "#F18F01", weight: w, opacity: .9, className: "flow", lineJoin: "round" }).addTo(gHub).bindPopup(`
       <h3>Hub → ${d.city} (${d.dc_id})</h3><div class="sub">Haftalık ikmal hattı</div>
       <table><tr><td>Mesafe (yol)</td><td>${fmt(d.distance_km,1)} km</td></tr><tr><td>Sürüş süresi</td><td>${fmt(d.duration_hours,1)} saat</td></tr>
       <tr><td>Tedarik süresi</td><td>${d.lead_time_days} gün</td></tr><tr><td>Haftalık adet</td><td>${fmt(d.weekly_qty)}</td></tr>
@@ -149,7 +153,7 @@ fetch("data.json").then(r => r.json()).then(D => {
   D.stores.forEach(s => {
     const dc = rdcs.find(d => d.dc_id === s.dc_id), col = DC_COLORS[s.dc_id] || "#2E86AB";
     const r = 7 + 9 * s.weekly_qty / maxS;
-    L.polyline(arc([dc.latitude, dc.longitude], [s.latitude, s.longitude], 0.22, 32), { color: col, weight: 1.5 + 0.9 * s.trips_per_week, opacity: .75, dashArray: "6 6", className: "flow" }).addTo(gStore).bindPopup(`
+    L.polyline(roadPath(D, dc.dc_id, s.store_id, [dc.latitude, dc.longitude], [s.latitude, s.longitude]), { color: col, weight: 1.5 + 0.9 * s.trips_per_week, opacity: .85, dashArray: "6 6", className: "flow", lineJoin: "round" }).addTo(gStore).bindPopup(`
       <h3>${dc.dc_id} DC → ${s.store_id} (${s.city})</h3><div class="sub">Teslimat hattı · ${s.schedule_label}</div>
       <table><tr><td>Mesafe (yol)</td><td>${fmt(s.distance_km,1)} km</td></tr><tr><td>Sürüş süresi</td><td>${fmt(s.duration_hours,1)} saat</td></tr>
       <tr><td>Sefer / hafta</td><td>${s.trips_per_week}</td></tr><tr><td>Gidiş-dönüş sefer maliyeti</td><td>${usd(s.round_trip_cost_usd)}</td></tr>
