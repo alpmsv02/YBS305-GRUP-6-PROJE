@@ -1,4 +1,8 @@
 wallmart.duckdns.org {
+    log {
+        output file /data/access.log
+        format json
+    }
     encode gzip
     handle_path /dbt-docs/* {
         root * /srv/dbt-docs

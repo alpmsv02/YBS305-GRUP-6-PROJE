@@ -52,6 +52,46 @@ class Superset:
         return self.get(f"{path}/?q={json.dumps({'page_size': 100})}")["result"]
 
 
+# ---------- Türkçe sütun adları (dataset verbose_name) ----------
+VERBOSE = {
+    "dc_id": "Dağıtım merkezi", "dc_name": "Dağıtım merkezi adı", "dc_city": "DC şehri", "state_id": "Eyalet", "store_id": "Mağaza",
+    "store_city": "Mağaza şehri", "item_id": "SKU", "dept_id": "Departman", "cat_id": "Kategori", "date_day": "Tarih",
+    "week_start": "Hafta başlangıcı", "wm_yr_wk": "Walmart haftası", "sales_qty": "Satış adedi", "sell_price": "Fiyat (USD)",
+    "revenue": "Ciro (USD)", "units": "Adet", "zero_days": "Sıfır satış günü", "days_in_week": "Haftadaki gün", "is_complete_week": "Tam hafta",
+    "weekday_name": "Gün adı", "weekday_num": "Gün no", "weekday_label": "Haftanın günü", "is_weekend": "Hafta sonu", "is_event": "Etkinlik",
+    "event_type": "Etkinlik tipi", "event_name": "Etkinlik adı", "is_snap": "SNAP günü", "temp_mean_c": "Ort. sıcaklık (°C)",
+    "precipitation_mm": "Yağış (mm)", "is_rainy": "Yağışlı", "units_52w": "Adet (52 hafta)", "revenue_52w": "Ciro (52 hafta)",
+    "active_weeks": "Listede olduğu hafta", "avg_weekly_units": "Ort. haftalık adet", "cv_weekly": "Değişkenlik (CV)",
+    "zero_day_share": "Sıfır satış günü oranı", "cum_revenue_share": "Kümülatif ciro payı", "picking_rank": "Toplama sırası",
+    "abc_class": "ABC sınıfı", "xyz_class": "XYZ sınıfı", "abc_xyz": "ABC-XYZ", "warehouse_zone": "Depo bölgesi", "zone_label": "Depo bölgesi (sıralı)",
+    "std_weekly_units": "Haftalık std. sapma", "max_weekly_units": "Maks. haftalık adet", "units_13w": "Adet (13 hafta)",
+    "safety_stock": "Emniyet stoku", "recommended_weekly_qty": "Önerilen haftalık sevkiyat", "avg_unit_price": "Ort. birim fiyat (USD)",
+    "day_type": "Gün tipi", "weather_type": "Hava tipi", "n_days": "Gün sayısı", "avg_units_per_sku": "SKU başına ort. adet",
+    "baseline_units": "Taban çizgisi", "lift_vs_baseline": "Artış (taban çizgisine göre)",
+    "deliveries_per_week": "Haftalık teslimat sayısı", "optimal_deliveries_per_week": "Optimum teslimat/hafta", "schedule_label": "Teslimat programı",
+    "trips_per_week": "Sefer/hafta", "weekly_qty": "Haftalık adet", "weekly_value_usd": "Haftalık değer (USD)", "distance_km": "Mesafe (km)",
+    "distance_miles": "Mesafe (mil)", "duration_min": "Süre (dk)", "duration_hours": "Sürüş süresi (saat)", "lead_time_days": "Tedarik süresi (gün)",
+    "diesel_usd_gal": "Dizel (USD/gal)", "cost_per_mile_usd": "Mil maliyeti (USD)", "round_trip_cost_usd": "Gidiş-dönüş maliyeti (USD)",
+    "transport_cost_week_usd": "Haftalık taşıma maliyeti (USD)", "holding_cost_week_usd": "Haftalık stok maliyeti (USD)",
+    "total_cost_week_usd": "Haftalık toplam maliyet (USD)", "transport_cost_per_unit_usd": "Adet başına taşıma (USD)",
+    "trucks_per_week": "Tır/hafta", "pipeline_stock_units": "Yoldaki stok (adet)", "n_stores": "Mağaza sayısı", "leg_type": "Bacak tipi",
+    "origin_id": "Çıkış", "dest_id": "Varış", "method": "Yöntem", "city": "Şehir", "latitude": "Enlem", "longitude": "Boylam",
+    "dc_level": "Depo seviyesi", "walmart_dc_number": "Walmart DC no", "source_note": "Kaynak notu",
+}
+COLUMN_KEEP = ("id", "column_name", "verbose_name", "description", "type", "is_dttm", "is_active", "groupby", "filterable",
+               "expression", "python_date_format", "extra", "advanced_data_type", "uuid")
+
+
+def apply_verbose_names(api, dataset_id):
+    d = api.get(f"/dataset/{dataset_id}")["result"]
+    cols = []
+    for c in d["columns"]:
+        c2 = {k: c[k] for k in COLUMN_KEEP if k in c and c[k] is not None}
+        c2["verbose_name"] = VERBOSE.get(c["column_name"], c.get("verbose_name") or c["column_name"])
+        cols.append(c2)
+    api.put(f"/dataset/{dataset_id}", {"columns": cols})
+
+
 # ---------- helpers for chart params ----------
 def sql_metric(expr, label):
     return {"expressionType": "SQL", "sqlExpression": expr, "label": label, "hasCustomLabel": True}
@@ -82,7 +122,7 @@ def line(ds, title, x, metrics, groupby=(), filters=()):
         "metrics": metrics, "groupby": list(groupby), "adhoc_filters": list(filters), "order_desc": True,
         "row_limit": 10000, "truncate_metric": True, "show_legend": True, "legendType": "scroll", "legendOrientation": "top",
         "rich_tooltip": True, "tooltipSortByMetric": True, "y_axis_format": "SMART_NUMBER", "x_axis_time_format": "smart_date",
-        "color_scheme": "supersetColors", "markerEnabled": False, "seriesType": "line", "area": False, "opacity": 0.2,
+        "color_scheme": "grup6", "markerEnabled": False, "seriesType": "line", "area": False, "opacity": 0.2,
     })
 
 
@@ -94,7 +134,7 @@ def bar(ds, title, x, metrics, groupby=(), stack=False, sort_by_metric=False, ro
         "viz_type": "echarts_timeseries_bar", "x_axis": x, "time_grain_sqla": None, "metrics": metrics,
         "groupby": list(groupby), "adhoc_filters": list(filters), "order_desc": True, "row_limit": row_limit,
         "truncate_metric": True, "show_legend": bool(groupby) or len(metrics) > 1, "legendOrientation": "top",
-        "rich_tooltip": True, "y_axis_format": y_fmt, "color_scheme": "supersetColors", "stack": stack,
+        "rich_tooltip": True, "y_axis_format": y_fmt, "color_scheme": "grup6", "stack": stack,
         "orientation": "vertical", "show_value": show_values, "only_total": True,
         "x_axis_sort_series": "name", "x_axis_sort_series_ascending": True, "xAxisLabelRotation": rotate,
     }
@@ -109,14 +149,14 @@ def heatmap(ds, title, x, y, metric):
         "viz_type": "heatmap_v2", "x_axis": x, "groupby": y, "metric": metric, "adhoc_filters": [],
         "row_limit": 10000, "sort_x_axis": "alpha_asc", "sort_y_axis": "alpha_asc", "normalize_across": "heatmap",
         "legend_type": "continuous", "show_legend": True, "show_percentage": False, "show_values": True,
-        "linear_color_scheme": "superset_seq_1", "value_bounds": [None, None], "y_axis_format": "SMART_NUMBER",
+        "linear_color_scheme": "grup6_seq", "value_bounds": [None, None], "y_axis_format": "SMART_NUMBER",
     })
 
 
 def treemap(ds, title, groupby, metric, filters=()):
     return dict(slice_name=title, viz_type="treemap_v2", ds=ds, dims=list(groupby), params={
         "viz_type": "treemap_v2", "groupby": list(groupby), "metric": metric, "adhoc_filters": list(filters),
-        "row_limit": 500, "color_scheme": "supersetColors", "show_labels": True, "show_upper_labels": True,
+        "row_limit": 500, "color_scheme": "grup6", "show_labels": True, "show_upper_labels": True,
         "label_type": "key_value", "number_format": "SMART_NUMBER",
     })
 
@@ -150,6 +190,16 @@ class Layout:
         self.pos["TABS-main"]["children"].append(tid)
         self.tabs.append(tid)
         return tid
+
+    def markdown(self, tid, text, height=22):
+        self.n += 1
+        rid = f"ROW-{self.n}"; parents = ["ROOT_ID", "GRID_ID", "TABS-main", tid]
+        self.pos[rid] = {"type": "ROW", "id": rid, "children": [], "parents": parents, "meta": {"background": "BACKGROUND_TRANSPARENT"}}
+        self.pos[tid]["children"].append(rid)
+        self.n += 1
+        mid = f"MARKDOWN-{self.n}"
+        self.pos[mid] = {"type": "MARKDOWN", "id": mid, "children": [], "parents": parents + [rid], "meta": {"width": 12, "height": height, "code": text}}
+        self.pos[rid]["children"].append(mid)
 
     def row(self, tid, charts, height):
         self.n += 1
@@ -194,6 +244,7 @@ def main():
         else:
             ds[t] = api.post("/dataset/", {"database": db_id, "schema": SCHEMA, "table_name": t})["id"]
         cols[ds[t]] = {c["column_name"] for c in api.get(f"/dataset/{ds[t]}")["result"]["columns"]}
+        apply_verbose_names(api, ds[t])
     print("datasets", ds)
 
     # 3) wipe old dashboard + its charts
@@ -286,17 +337,28 @@ def main():
     # 5) layout
     L = Layout(DASH_TITLE)
     t1 = L.tab("overview", "Genel Bakış")
+    L.markdown(t1, "**İş problemi.** Merkez hub (Bentonville, AR) üç bölgesel dağıtım merkezini (Porterville CA · New Braunfels TX · Beaver Dam WI) besler; "
+                   "her DC kendi eyaletindeki mağazalara sevkiyat yapar (10 mağaza, 3.049 SKU). Süreç: **talep → depo yerleşimi (ABC/XYZ) → sevkiyat planı → teslimat sıklığı**. "
+                   "Veri: Kaggle M5 (Walmart, 24.05.2014–22.05.2016) + Open-Meteo + OSRM + EIA/FRED. Filtreler soldaki panelden uygulanır.", 12)
     L.row(t1, [(charts["kpi_rev"], 2), (charts["kpi_units"], 2), (charts["kpi_sku"], 2), (charts["kpi_need"], 3), (charts["kpi_trucks"], 3)], 22)
     L.row(t1, [(charts["line_rev"], 8), (charts["bar_store"], 4)], 55)
     L.row(t1, [(charts["line_cat"], 7), (charts["tree_dept"], 5)], 55)
     t2 = L.tab("layout", "Depo Yerleşimi")
+    L.markdown(t2, "**ABC** = ciro payı (A: ilk %80, B: %80–95, C: kalan) · **XYZ** = haftalık talep düzensizliği (X: CV<0,5 düzenli, Y: <1,0, Z: ≥1,0). "
+                   "**Depo bölgesi:** 🟧 **HOT** (AX, AY) rampaya yakın hızlı toplama · 🟦 **WARM** (AZ, BX, BY) orta · ⬜ **COLD** (BZ, C*) uzak raf, düşük toplama sıklığı. "
+                   "Sol üstteki *Depo Seviyesi* filtresiyle hub veya tek bir bölgesel DC seçin — sınıflar her depo için ayrı hesaplanır (son 52 tam hafta).", 12)
     L.row(t2, [(charts["kpi_a"], 3), (charts["kpi_hot"], 3), (charts["kpi_cold"], 3), (charts["heat"], 3)], 40)
     L.row(t2, [(charts["bar_zone"], 4), (charts["bar_zone_share"], 4), (charts["bar_zero"], 4)], 50)
     L.row(t2, [(charts["bar_zone_dept"], 5), (charts["tbl_sku"], 7)], 70)
     t3 = L.tab("replenishment", "Mağaza Sevkiyatı")
+    L.markdown(t3, "**Önerilen haftalık sevkiyat** = son 13 tam haftanın ortalama talebi + emniyet stoku (1,65 × σ, %95 hizmet seviyesi, tedarik süresi 1 hafta). "
+                   "Takvim etkileri (hafta sonu, SNAP, etkinlik, yağış) sevkiyatın hangi günlere yoğunlaştırılacağını gösterir.", 10)
     L.row(t3, [(charts["bar_rep"], 4), (charts["bar_wd"], 4), (charts["bar_cal"], 4)], 55)
     L.row(t3, [(charts["bar_wx"], 4), (charts["tbl_rep"], 8)], 70)
     t4 = L.tab("logistics", "Lojistik Ağı")
+    L.markdown(t4, "**Sefer maliyeti** = gidiş-dönüş mil × [(ATRI 2016 toplam − yakıt) + bölgesel dizel / 6,5 mpg]. **Teslimat sıklığı** haftada 1/2/3/5/7 seçenekleri arasından "
+                   "*taşıma + stok taşıma* toplamını en küçükleyen seçilir (tır kapasitesi 20.000 adet, yıllık stok taşıma oranı %25). "
+                   "Mesafe ve süreler OSRM/OpenStreetMap yol ağından; DC konumları gerçek Walmart RDC adresleri, hub ve mağaza şehirleri varsayımdır.", 12)
     L.row(t4, [(charts["kpi_hubcost"], 4), (charts["kpi_storecost"], 4), (charts["kpi_lead"], 4)], 22)
     L.row(t4, [(charts["bar_hub"], 3), (charts["bar_hubunit"], 3), (charts["bar_freq"], 3), (charts["bar_opt"], 3)], 50)
     L.row(t4, [(charts["tbl_hub"], 12)], 35)
@@ -338,10 +400,14 @@ def main():
         scope = [o["id"] for o in charts.values() if o["id"] != c["id"] and c["dims"] and set(c["dims"]) <= cols[o["ds"]]]
         chart_cfg[str(c["id"])] = {"id": c["id"], "crossFilters": {"scope": {"rootPath": ["ROOT_ID"], "excluded": [i for i in all_ids if i not in scope and i != c["id"]]},
                                                                 "chartsInScope": scope}}
-    json_metadata = {"native_filter_configuration": filters, "color_scheme": "supersetColors", "refresh_frequency": 0,
+    json_metadata = {"native_filter_configuration": filters, "color_scheme": "grup6", "refresh_frequency": 0,
                      "expanded_slices": {}, "label_colors": {}, "timed_refresh_immune_slices": [], "cross_filters_enabled": True,
                      "default_filters": "{}", "chart_configuration": chart_cfg}
-    api.put(f"/dashboard/{dash_id}", {"position_json": json.dumps(L.pos), "json_metadata": json.dumps(json_metadata), "published": True})
+    css = """
+.dashboard-markdown { background:#F0F5FA; border-left:4px solid #1F4E79; border-radius:6px; padding:6px 14px; }
+.dashboard-component-chart-holder .header-title { color:#1F4E79; }
+"""
+    api.put(f"/dashboard/{dash_id}", {"position_json": json.dumps(L.pos), "json_metadata": json.dumps(json_metadata), "published": True, "css": css})
     print(f"dashboard ready: {a.base_url}/superset/dashboard/{DASH_SLUG}/")
 
 

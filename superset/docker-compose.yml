@@ -29,6 +29,7 @@ services:
       - "127.0.0.1:8088:8088"
     volumes:
       - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+      - ./branding:/app/superset/static/assets/images/custom:ro
       - superset_home:/app/superset_home
       - ../data/warehouse:/data/warehouse:ro
     mem_limit: 1200m
