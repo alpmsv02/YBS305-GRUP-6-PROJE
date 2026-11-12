@@ -356,6 +356,9 @@ def main():
     L.row(t3, [(charts["bar_rep"], 4), (charts["bar_wd"], 4), (charts["bar_cal"], 4)], 55)
     L.row(t3, [(charts["bar_wx"], 4), (charts["tbl_rep"], 8)], 70)
     t4 = L.tab("logistics", "Lojistik Ağı")
+    L.markdown(t4, '<iframe src="https://wallmart.duckdns.org/map/" title="Lojistik ağı haritası" width="100%" height="640" style="border:0;border-radius:8px" loading="lazy"></iframe>\n\n'
+                   '**Lojistik ağı haritası** — hub → bölgesel DC → mağaza hatları (kalınlık: tır/sefer sayısı), marker boyutu haftalık adet; tıklayınca ayrıntılı kart. '
+                   '[Tam ekran aç](https://wallmart.duckdns.org/map/)', 84)
     L.markdown(t4, "**Sefer maliyeti** = gidiş-dönüş mil × [(ATRI 2016 toplam − yakıt) + bölgesel dizel / 6,5 mpg]. **Teslimat sıklığı** haftada 1/2/3/5/7 seçenekleri arasından "
                    "*taşıma + stok taşıma* toplamını en küçükleyen seçilir (tır kapasitesi 20.000 adet, yıllık stok taşıma oranı %25). "
                    "Mesafe ve süreler OSRM/OpenStreetMap yol ağından; DC konumları gerçek Walmart RDC adresleri, hub ve mağaza şehirleri varsayımdır.", 12)

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lojistik Ağı Haritası</title>
+<link rel="stylesheet" href="vendor/leaflet.css">
+<script src="vendor/leaflet.js"></script>
+<style>
+  :root { --blue:#1F4E79; --orange:#F18F01; --teal:#2E86AB; --red:#C73E1D; --green:#6A994E; --gray:#5B7A99; }
+  html, body { margin:0; height:100%; font-family: Inter, "Segoe UI", Helvetica, Arial, sans-serif; color:#1e2a36; }
+  #map { position:absolute; inset:0; background:#eef2f6; }
+  .panel { position:absolute; z-index:1000; background:rgba(255,255,255,.96); border-radius:10px; box-shadow:0 2px 12px rgba(0,0,0,.15); font-size:12px; }
+  #kpi { top:12px; left:12px; padding:10px 14px; max-width:300px; }
+  #kpi h1 { font-size:14px; margin:0 0 6px; color:var(--blue); }
+  #kpi .row { display:flex; justify-content:space-between; gap:12px; padding:2px 0; border-bottom:1px dashed #e5e9ee; }
+  #kpi .row b { color:var(--blue); }
+  #legend { bottom:24px; left:12px; padding:10px 14px; }
+  #legend .item { display:flex; align-items:center; gap:8px; margin:3px 0; }
+  .sw { display:inline-block; width:22px; height:0; border-top:4px solid var(--orange); }
+  .sw.store { border-top:3px solid var(--teal); }
+  .dot { display:inline-block; width:12px; height:12px; border-radius:50%; background:var(--teal); border:2px solid #fff; box-shadow:0 0 0 1px var(--teal); }
+  .dot.dc { background:var(--blue); box-shadow:0 0 0 1px var(--blue); border-radius:3px; }
+  .dot.hub { background:var(--orange); box-shadow:0 0 0 1px var(--orange); width:14px; height:14px; transform:rotate(45deg); border-radius:2px; }
+  #layers { top:12px; right:12px; padding:8px 12px; }
+  #layers label { display:block; margin:3px 0; cursor:pointer; }
+  .leaflet-popup-content { margin:10px 12px; font-size:12px; line-height:1.35; min-width:250px; }
+  .leaflet-popup-content h3 { margin:0 0 4px; font-size:14px; color:var(--blue); }
+  .leaflet-popup-content .sub { color:var(--gray); margin-bottom:6px; }
+  .leaflet-popup-content table { border-collapse:collapse; width:100%; }
+  .leaflet-popup-content td { padding:1px 0; vertical-align:top; }
+  .leaflet-popup-content td:last-child { text-align:right; font-weight:600; }
+  .bar { height:8px; background:#e5e9ee; border-radius:4px; overflow:hidden; display:flex; margin:4px 0 6px; }
+  .bar span { display:block; height:100%; }
+  .tag { display:inline-block; padding:1px 6px; border-radius:10px; font-size:11px; color:#fff; margin-right:4px; }
+  .lbl { background:transparent; border:0; box-shadow:none; font-weight:700; font-size:11px; color:var(--blue); text-shadow:0 0 3px #fff,0 0 3px #fff; white-space:nowrap; }
+  .lbl.store { font-weight:600; color:#2b4a63; }
+  #note { bottom:24px; right:12px; padding:6px 10px; max-width:360px; color:var(--gray); font-size:11px; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="kpi" class="panel"><h1>Lojistik Ağı · Merkez Hub → Bölgesel DC → Mağaza</h1><div id="kpirows"></div></div>
+<div id="layers" class="panel">
+  <label><input type="checkbox" id="l_hub" checked> Hub → DC sevkiyat hatları</label>
+  <label><input type="checkbox" id="l_store" checked> DC → Mağaza teslimat hatları</label>
+  <label><input type="checkbox" id="l_labels" checked> Etiketler</label>
+  <label><input type="checkbox" id="l_anim" checked> Akış animasyonu</label>
+</div>
+<div id="legend" class="panel">
+  <div class="item"><span class="dot hub"></span> Merkez hub (Bentonville, AR)</div>
+  <div class="item"><span class="dot dc"></span> Bölgesel DC (gerçek Walmart RDC) — boyut: haftalık adet</div>
+  <div class="item"><span class="dot"></span> Mağaza — boyut: haftalık sevkiyat, renk: bağlı DC</div>
+  <div class="item"><span class="sw"></span> Hub → DC: kalınlık = tır/hafta</div>
+  <div class="item"><span class="sw store"></span> DC → Mağaza: kalınlık = sefer/hafta</div>
+  <div class="item" style="color:#5B7A99">Tıkla: ayrıntılı kart · Yakınlaştırınca mağaza etiketleri · Mesafeler OSRM/OSM</div>
+</div>
+<div id="note" class="panel">Kaynak: dbt mart'ları (mart_hub_supply_plan, mart_delivery_plan, mart_sku_abc_xyz, fct_route). Hub ve mağaza şehirleri varsayımdır; DC konumları gerçek Walmart RDC adresleridir.</div>
+<script>
+const DC_COLORS = { CA: "#2E86AB", TX: "#C73E1D", WI: "#6A994E" };
+const fmt = (n, d=0) => n == null ? "–" : Number(n).toLocaleString("tr-TR", {maximumFractionDigits:d, minimumFractionDigits:d});
+const usd = (n, d=0) => "$" + fmt(n, d);
+
+const map = L.map("map", { zoomControl: true, attributionControl: true }).setView([37.5, -100], 4);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> katkıda bulunanlar", maxZoom: 18, opacity: 0.55 }).addTo(map);
+map.zoomControl.setPosition("bottomright");
+
+const gHub = L.layerGroup().addTo(map), gStore = L.layerGroup().addTo(map), gLabels = L.layerGroup().addTo(map), gStoreLabels = L.layerGroup(), gMarkers = L.layerGroup().addTo(map);
+const STORE_LABEL_ZOOM = 6; let labelsOn = true;
+function syncStoreLabels() { const show = labelsOn && map.getZoom() >= STORE_LABEL_ZOOM; if (show && !map.hasLayer(gStoreLabels)) gStoreLabels.addTo(map); if (!show && map.hasLayer(gStoreLabels)) map.removeLayer(gStoreLabels); }
+map.on("zoomend", syncStoreLabels);
+
+// quadratic bezier arc between two latlngs
+function arc(a, b, bend = 0.18, n = 48) {
+  const [lat1, lon1] = a, [lat2, lon2] = b;
+  const mx = (lat1 + lat2) / 2, my = (lon1 + lon2) / 2;
+  const dx = lat2 - lat1, dy = lon2 - lon1, len = Math.hypot(dx, dy) || 1;
+  const cx = mx - dy / len * len * bend, cy = my + dx / len * len * bend;
+  const pts = [];
+  for (let i = 0; i <= n; i++) { const t = i / n, u = 1 - t;
+    pts.push([u*u*lat1 + 2*u*t*cx + t*t*lat2, u*u*lon1 + 2*u*t*cy + t*t*lon2]); }
+  return pts;
+}
+function zonesBar(z) {
+  const tot = (z.HOT?.skus||0)+(z.WARM?.skus||0)+(z.COLD?.skus||0) || 1;
+  return `<div class="bar"><span style="width:${100*(z.HOT?.skus||0)/tot}%;background:#F18F01"></span><span style="width:${100*(z.WARM?.skus||0)/tot}%;background:#1F4E79"></span><span style="width:${100*(z.COLD?.skus||0)/tot}%;background:#B8D0E8"></span></div>
+  <div><span class="tag" style="background:#F18F01">HOT ${fmt(z.HOT?.skus)}</span><span class="tag" style="background:#1F4E79">WARM ${fmt(z.WARM?.skus)}</span><span class="tag" style="background:#7FA6CF">COLD ${fmt(z.COLD?.skus)}</span> SKU</div>`;
+}
+function catBar(c) {
+  const tot = Object.values(c).reduce((a,b)=>a+b,0) || 1; const col = {FOODS:"#6A994E", HOUSEHOLD:"#2E86AB", HOBBIES:"#E9C46A"};
+  return `<div class="bar">${Object.entries(c).map(([k,v])=>`<span style="width:${100*v/tot}%;background:${col[k]||'#999'}"></span>`).join("")}</div>
+  <div>${Object.entries(c).map(([k,v])=>`<span class="tag" style="background:${col[k]||'#999'}">${k} ${fmt(v)}</span>`).join("")}</div>`;
+}
+function curve(cc) { if (!cc.length) return ""; const min = Math.min(...cc.map(x=>x[1]));
+  return `<div style="margin-top:6px;color:#5B7A99">Sıklık → haftalık toplam maliyet:</div><div>${cc.map(([k,v])=>`<span class="tag" style="background:${v===min?'#1F4E79':'#B8D0E8'};color:${v===min?'#fff':'#1e2a36'}">${k}× ${usd(v)}</span>`).join("")}</div>`; }
+
+fetch("data.json").then(r => r.json()).then(D => {
+  const hub = D.dcs.find(d => d.dc_level === "HUB"), rdcs = D.dcs.filter(d => d.dc_level !== "HUB");
+  const maxQ = Math.max(...rdcs.map(d => d.weekly_qty)), maxS = Math.max(...D.stores.map(s => s.weekly_qty));
+  const bounds = [];
+
+  // KPI panel
+  const T = D.totals;
+  document.getElementById("kpirows").innerHTML = [
+    ["Haftalık sevkiyat ihtiyacı", fmt(T.weekly_qty) + " adet"],
+    ["Hub → DC tır / hafta", fmt(T.hub_trucks)],
+    ["Hub → DC taşıma maliyeti / hafta", usd(T.hub_cost)],
+    ["DC → Mağaza sefer / hafta", fmt(T.store_trips)],
+    ["DC → Mağaza toplam maliyet / hafta", usd(T.store_cost)],
+    ["Ağ toplam yol uzunluğu (tek yön)", fmt(T.network_km) + " km"],
+  ].map(([k,v]) => `<div class="row"><span>${k}</span><b>${v}</b></div>`).join("");
+
+  // hub marker
+  const hubIcon = L.divIcon({ className: "", html: `<div style="width:22px;height:22px;background:#F18F01;border:3px solid #fff;transform:rotate(45deg);box-shadow:0 0 0 2px #F18F01,0 2px 8px rgba(0,0,0,.3)"></div>`, iconSize: [22,22], iconAnchor: [11,11] });
+  L.marker([hub.latitude, hub.longitude], { icon: hubIcon, zIndexOffset: 1000 }).addTo(gMarkers).bindPopup(`
+    <h3>${hub.dc_name}</h3><div class="sub">${hub.city}, ${hub.state_id} · Walmart DC #${hub.walmart_dc_number}</div>
+    <table><tr><td>Beslediği bölgesel DC</td><td>${rdcs.length}</td></tr><tr><td>Haftalık toplam sevkiyat</td><td>${fmt(T.weekly_qty)} adet</td></tr>
+    <tr><td>Tır / hafta</td><td>${fmt(T.hub_trucks)}</td></tr><tr><td>Taşıma maliyeti / hafta</td><td>${usd(T.hub_cost)}</td></tr></table>
+    <div style="margin-top:6px;color:#5B7A99">Hub seviyesi depo yerleşimi (tüm ağ talebi):</div>${zonesBar(hub.zones)}
+    <div style="margin-top:6px;font-size:11px;color:#5B7A99">${hub.source_note}</div>`);
+  L.marker([hub.latitude, hub.longitude], { icon: L.divIcon({ className: "lbl", html: "MERKEZ HUB · Bentonville", iconAnchor: [-16, 18] }), interactive: false }).addTo(gLabels);
+  bounds.push([hub.latitude, hub.longitude]);
+
+  rdcs.forEach(d => {
+    const col = DC_COLORS[d.dc_id] || "#1F4E79";
+    const size = 16 + 18 * d.weekly_qty / maxQ;
+    // hub -> DC arc
+    const w = 2 + 1.2 * d.trucks_per_week;
+    L.polyline(arc([hub.latitude, hub.longitude], [d.latitude, d.longitude], 0.14), { color: "#F18F01", weight: w, opacity: .85, className: "flow" }).addTo(gHub).bindPopup(`
+      <h3>Hub → ${d.city} (${d.dc_id})</h3><div class="sub">Haftalık ikmal hattı</div>
+      <table><tr><td>Mesafe (yol)</td><td>${fmt(d.distance_km,1)} km</td></tr><tr><td>Sürüş süresi</td><td>${fmt(d.duration_hours,1)} saat</td></tr>
+      <tr><td>Tedarik süresi</td><td>${d.lead_time_days} gün</td></tr><tr><td>Haftalık adet</td><td>${fmt(d.weekly_qty)}</td></tr>
+      <tr><td>Tır / hafta (20.000 adet)</td><td>${d.trucks_per_week}</td></tr><tr><td>Bölgesel dizel</td><td>${usd(d.diesel_usd_gal,3)}/gal</td></tr>
+      <tr><td>Gidiş-dönüş sefer maliyeti</td><td>${usd(d.round_trip_cost_usd)}</td></tr><tr><td>Haftalık taşıma maliyeti</td><td>${usd(d.transport_cost_week_usd)}</td></tr>
+      <tr><td>Adet başına taşıma</td><td>${usd(d.transport_cost_per_unit_usd,3)}</td></tr><tr><td>Yoldaki stok</td><td>${fmt(d.pipeline_stock_units)} adet</td></tr></table>`);
+    // DC marker
+    const dcIcon = L.divIcon({ className: "", html: `<div style="width:${size}px;height:${size}px;background:${col};border:3px solid #fff;border-radius:5px;box-shadow:0 0 0 2px ${col},0 2px 8px rgba(0,0,0,.3)"></div>`, iconSize: [size,size], iconAnchor: [size/2,size/2] });
+    L.marker([d.latitude, d.longitude], { icon: dcIcon, zIndexOffset: 500 }).addTo(gMarkers).bindPopup(`
+      <h3>${d.dc_name}</h3><div class="sub">${d.city}, ${d.state_id} · Walmart DC #${d.walmart_dc_number} · ${d.n_stores} mağaza</div>
+      <table><tr><td>Haftalık sevkiyat ihtiyacı</td><td>${fmt(d.weekly_qty)} adet</td></tr><tr><td>Haftalık değer</td><td>${usd(d.weekly_value_usd)}</td></tr>
+      <tr><td>Hub'dan tır / hafta</td><td>${d.trucks_per_week}</td></tr><tr><td>Tedarik süresi (hub → DC)</td><td>${d.lead_time_days} gün</td></tr></table>
+      <div style="margin-top:6px;color:#5B7A99">Depo yerleşimi (bu DC'nin talebine göre, 52 hafta):</div>${zonesBar(d.zones)}
+      <div style="margin-top:6px;font-size:11px;color:#5B7A99">${d.source_note}</div>`);
+    L.marker([d.latitude, d.longitude], { icon: L.divIcon({ className: "lbl", html: `${d.dc_id} DC · ${d.city}`, iconAnchor: [-size/2-4, size/2+6] }), interactive: false }).addTo(gLabels);
+    bounds.push([d.latitude, d.longitude]);
+  });
+
+  D.stores.forEach(s => {
+    const dc = rdcs.find(d => d.dc_id === s.dc_id), col = DC_COLORS[s.dc_id] || "#2E86AB";
+    const r = 7 + 9 * s.weekly_qty / maxS;
+    L.polyline(arc([dc.latitude, dc.longitude], [s.latitude, s.longitude], 0.22, 32), { color: col, weight: 1.5 + 0.9 * s.trips_per_week, opacity: .75, dashArray: "6 6", className: "flow" }).addTo(gStore).bindPopup(`
+      <h3>${dc.dc_id} DC → ${s.store_id} (${s.city})</h3><div class="sub">Teslimat hattı · ${s.schedule_label}</div>
+      <table><tr><td>Mesafe (yol)</td><td>${fmt(s.distance_km,1)} km</td></tr><tr><td>Sürüş süresi</td><td>${fmt(s.duration_hours,1)} saat</td></tr>
+      <tr><td>Sefer / hafta</td><td>${s.trips_per_week}</td></tr><tr><td>Gidiş-dönüş sefer maliyeti</td><td>${usd(s.round_trip_cost_usd)}</td></tr>
+      <tr><td>Haftalık taşıma</td><td>${usd(s.transport_cost_week_usd)}</td></tr><tr><td>Haftalık stok taşıma</td><td>${usd(s.holding_cost_week_usd)}</td></tr>
+      <tr><td>Haftalık toplam</td><td>${usd(s.total_cost_week_usd)}</td></tr></table>${curve(s.cost_curve)}`);
+    L.circleMarker([s.latitude, s.longitude], { radius: r, color: "#fff", weight: 2, fillColor: col, fillOpacity: .95 }).addTo(gMarkers).bindPopup(`
+      <h3>${s.store_id} · ${s.city}</h3><div class="sub">Bağlı DC: ${dc.city} (${s.dc_id}) · 2 yıllık ciro ${usd(s.revenue_2y)}</div>
+      <table><tr><td>Önerilen haftalık sevkiyat</td><td>${fmt(s.weekly_qty)} adet</td></tr><tr><td>Haftalık değer</td><td>${usd(s.weekly_value_usd)}</td></tr>
+      <tr><td>Optimum teslimat sıklığı</td><td>${s.optimal_deliveries_per_week}× / hafta</td></tr><tr><td>Program</td><td>${s.schedule_label}</td></tr>
+      <tr><td>Adet başına taşıma</td><td>${usd(s.transport_cost_per_unit_usd,3)}</td></tr></table>
+      <div style="margin-top:6px;color:#5B7A99">Kategoriye göre haftalık sevkiyat:</div>${catBar(s.categories)}
+      <div style="margin-top:6px;color:#5B7A99">En çok sevk edilen SKU'lar (adet/hafta):</div><div>${s.top_skus.join(" · ")}</div>`);
+    L.marker([s.latitude, s.longitude], { icon: L.divIcon({ className: "lbl store", html: `${s.store_id} ${s.city}`, iconAnchor: [-r-3, -r-2] }), interactive: false }).addTo(gStoreLabels);
+    bounds.push([s.latitude, s.longitude]);
+  });
+
+  map.fitBounds(bounds, { padding: [40, 40] }); syncStoreLabels();
+
+  // layer toggles
+  const tog = (id, g) => document.getElementById(id).addEventListener("change", e => e.target.checked ? g.addTo(map) : map.removeLayer(g));
+  tog("l_hub", gHub); tog("l_store", gStore);
+  document.getElementById("l_labels").addEventListener("change", e => { labelsOn = e.target.checked; e.target.checked ? gLabels.addTo(map) : map.removeLayer(gLabels); syncStoreLabels(); });
+  // flow animation (dash offset)
+  let off = 0, anim = true;
+  document.getElementById("l_anim").addEventListener("change", e => anim = e.target.checked);
+  setInterval(() => { if (!anim) return; off = (off - 1) % 24; document.querySelectorAll("path.flow").forEach(p => p.style.strokeDashoffset = off); }, 60);
+  document.querySelectorAll("path.flow").forEach(p => { if (!p.getAttribute("stroke-dasharray")) p.style.strokeDasharray = "10 6"; });
+});
+</script>
+</body>
+</html>

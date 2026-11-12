@@ -39,3 +39,10 @@ EXTRA_SEQUENTIAL_COLOR_SCHEMES = [{
 }]
 FEATURE_FLAGS.update({"DASHBOARD_RBAC": True, "TAGGING_SYSTEM": True, "ENABLE_TEMPLATE_PROCESSING": True})
 CONTENT_SECURITY_POLICY_WARNING = False
+
+# Markdown bloklarında yalnızca kendi alan adımızdan iframe'e izin ver (lojistik haritası); genel HTML temizliği açık kalır
+HTML_SANITIZATION_SCHEMA_EXTENSIONS = {
+    "tagNames": ["iframe"],
+    "attributes": {"iframe": ["src", "width", "height", "style", "title", "loading"]},
+    "protocols": {"src": ["https"]},
+}

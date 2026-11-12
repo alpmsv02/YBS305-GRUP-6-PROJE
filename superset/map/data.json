@@ -1,0 +1,683 @@
+{
+ "dcs": [
+  {
+   "dc_id": "CA",
+   "dc_name": "Kaliforniya Bölgesel DC – Porterville",
+   "dc_level": "RDC",
+   "walmart_dc_number": "6021",
+   "city": "Porterville",
+   "state_id": "CA",
+   "latitude": 36.0652,
+   "longitude": -119.0168,
+   "source_note": "SPS Commerce Walmart DC list; Regional Distribution Center (1991)",
+   "n_stores": 4,
+   "weekly_qty": 217864,
+   "weekly_value_usd": 732154.84,
+   "distance_km": 2610.1,
+   "duration_hours": 28.3,
+   "lead_time_days": 3,
+   "diesel_usd_gal": 2.297,
+   "round_trip_cost_usd": 5213.71,
+   "trucks_per_week": 11,
+   "transport_cost_week_usd": 57350.81,
+   "transport_cost_per_unit_usd": 0.2632,
+   "pipeline_stock_units": 93370,
+   "zones": {
+    "COLD": {
+     "skus": 855,
+     "units": 524405
+    },
+    "HOT": {
+     "skus": 1282,
+     "units": 4588416
+    },
+    "WARM": {
+     "skus": 912,
+     "units": 1176401
+    }
+   }
+  },
+  {
+   "dc_id": "TX",
+   "dc_name": "Teksas Bölgesel DC – New Braunfels",
+   "dc_level": "RDC",
+   "walmart_dc_number": "6016",
+   "city": "New Braunfels",
+   "state_id": "TX",
+   "latitude": 29.703,
+   "longitude": -98.1245,
+   "source_note": "SPS Commerce Walmart DC list; Regional Distribution Center",
+   "n_stores": 3,
+   "weekly_qty": 139965,
+   "weekly_value_usd": 468097.67,
+   "distance_km": 963.7,
+   "duration_hours": 10.8,
+   "lead_time_days": 2,
+   "diesel_usd_gal": 2.157,
+   "round_trip_cost_usd": 1899.21,
+   "trucks_per_week": 7,
+   "transport_cost_week_usd": 13294.47,
+   "transport_cost_per_unit_usd": 0.095,
+   "pipeline_stock_units": 39990,
+   "zones": {
+    "COLD": {
+     "skus": 963,
+     "units": 313064
+    },
+    "HOT": {
+     "skus": 1074,
+     "units": 2821499
+    },
+    "WARM": {
+     "skus": 1012,
+     "units": 806534
+    }
+   }
+  },
+  {
+   "dc_id": "WI",
+   "dc_name": "Wisconsin Bölgesel DC – Beaver Dam",
+   "dc_level": "RDC",
+   "walmart_dc_number": "7039",
+   "city": "Beaver Dam",
+   "state_id": "WI",
+   "latitude": 43.4578,
+   "longitude": -88.8373,
+   "source_note": "SPS Commerce Walmart DC list; Regional Distribution Center (2007)",
+   "n_stores": 3,
+   "weekly_qty": 161787,
+   "weekly_value_usd": 492078.58,
+   "distance_km": 1175.6,
+   "duration_hours": 13.4,
+   "lead_time_days": 2,
+   "diesel_usd_gal": 2.271,
+   "round_trip_cost_usd": 2342.54,
+   "trucks_per_week": 9,
+   "transport_cost_week_usd": 21082.86,
+   "transport_cost_per_unit_usd": 0.1303,
+   "pipeline_stock_units": 46225,
+   "zones": {
+    "COLD": {
+     "skus": 890,
+     "units": 250224
+    },
+    "HOT": {
+     "skus": 1220,
+     "units": 3197305
+    },
+    "WARM": {
+     "skus": 939,
+     "units": 842092
+    }
+   }
+  },
+  {
+   "dc_id": "HUB",
+   "dc_name": "Merkez Hub – Bentonville AR",
+   "dc_level": "HUB",
+   "walmart_dc_number": "6094",
+   "city": "Bentonville",
+   "state_id": "AR",
+   "latitude": 36.3729,
+   "longitude": -94.2088,
+   "source_note": "Walmart genel merkezi ve ilk dağıtım merkezi; merkez hub VARSAYIMI",
+   "n_stores": null,
+   "weekly_qty": null,
+   "weekly_value_usd": null,
+   "distance_km": null,
+   "duration_hours": null,
+   "lead_time_days": null,
+   "diesel_usd_gal": null,
+   "round_trip_cost_usd": null,
+   "trucks_per_week": null,
+   "transport_cost_week_usd": null,
+   "transport_cost_per_unit_usd": null,
+   "pipeline_stock_units": null,
+   "zones": {
+    "COLD": {
+     "skus": 817,
+     "units": 988192
+    },
+    "HOT": {
+     "skus": 1286,
+     "units": 10460863
+    },
+    "WARM": {
+     "skus": 946,
+     "units": 3070885
+    }
+   }
+  }
+ ],
+ "stores": [
+  {
+   "store_id": "CA_1",
+   "dc_id": "CA",
+   "city": "Los Angeles",
+   "latitude": 34.05,
+   "longitude": -118.24,
+   "schedule_label": "Haftada 3 (Pzt-Çrş-Cum)",
+   "optimal_deliveries_per_week": 3,
+   "trips_per_week": 3,
+   "weekly_qty": 55537,
+   "weekly_value_usd": 183583.82,
+   "distance_km": 258.7,
+   "duration_hours": 3.1,
+   "round_trip_cost_usd": 516.61,
+   "transport_cost_week_usd": 1549.83,
+   "holding_cost_week_usd": 147.1,
+   "total_cost_week_usd": 1696.93,
+   "transport_cost_per_unit_usd": 0.0279,
+   "categories": {
+    "FOODS": 36051,
+    "HOBBIES": 7042,
+    "HOUSEHOLD": 12444
+   },
+   "revenue_2y": 10050407.31,
+   "top_skus": [
+    "FOODS_3_090 (457)",
+    "FOODS_3_120 (434)",
+    "FOODS_3_586 (310)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     1991.14
+    ],
+    [
+     2,
+     2287.09
+    ],
+    [
+     3,
+     1696.93
+    ],
+    [
+     5,
+     2671.31
+    ],
+    [
+     7,
+     3679.31
+    ]
+   ]
+  },
+  {
+   "store_id": "CA_2",
+   "dc_id": "CA",
+   "city": "San Francisco",
+   "latitude": 37.77,
+   "longitude": -122.42,
+   "schedule_label": "Haftada 3 (Pzt-Çrş-Cum)",
+   "optimal_deliveries_per_week": 3,
+   "trips_per_week": 3,
+   "weekly_qty": 53773,
+   "weekly_value_usd": 182458.5,
+   "distance_km": 411.0,
+   "duration_hours": 5.0,
+   "round_trip_cost_usd": 821.05,
+   "transport_cost_week_usd": 2463.15,
+   "holding_cost_week_usd": 146.2,
+   "total_cost_week_usd": 2609.35,
+   "transport_cost_per_unit_usd": 0.0458,
+   "categories": {
+    "FOODS": 34191,
+    "HOBBIES": 5718,
+    "HOUSEHOLD": 13864
+   },
+   "revenue_2y": 7787059.35,
+   "top_skus": [
+    "FOODS_3_090 (427)",
+    "FOODS_3_252 (299)",
+    "FOODS_3_288 (290)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     2901.75
+    ],
+    [
+     2,
+     3503.5
+    ],
+    [
+     3,
+     2609.35
+    ],
+    [
+     5,
+     4192.97
+    ],
+    [
+     7,
+     5810.01
+    ]
+   ]
+  },
+  {
+   "store_id": "CA_3",
+   "dc_id": "CA",
+   "city": "San Diego",
+   "latitude": 32.72,
+   "longitude": -117.16,
+   "schedule_label": "Haftada 2 (Pzt-Per)",
+   "optimal_deliveries_per_week": 2,
+   "trips_per_week": 4,
+   "weekly_qty": 73840,
+   "weekly_value_usd": 248014.05,
+   "distance_km": 451.4,
+   "duration_hours": 5.5,
+   "round_trip_cost_usd": 901.74,
+   "transport_cost_week_usd": 3606.96,
+   "holding_cost_week_usd": 298.09,
+   "total_cost_week_usd": 3905.05,
+   "transport_cost_per_unit_usd": 0.0488,
+   "categories": {
+    "FOODS": 45839,
+    "HOBBIES": 7707,
+    "HOUSEHOLD": 20294
+   },
+   "revenue_2y": 14152469.79,
+   "top_skus": [
+    "FOODS_3_090 (938)",
+    "FOODS_3_120 (656)",
+    "FOODS_3_586 (509)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     4203.15
+    ],
+    [
+     2,
+     3905.05
+    ],
+    [
+     3,
+     5609.17
+    ],
+    [
+     5,
+     4627.94
+    ],
+    [
+     7,
+     6397.35
+    ]
+   ]
+  },
+  {
+   "store_id": "CA_4",
+   "dc_id": "CA",
+   "city": "Sacramento",
+   "latitude": 38.58,
+   "longitude": -121.49,
+   "schedule_label": "Haftada 2 (Pzt-Per)",
+   "optimal_deliveries_per_week": 2,
+   "trips_per_week": 2,
+   "weekly_qty": 34714,
+   "weekly_value_usd": 118098.47,
+   "distance_km": 383.1,
+   "duration_hours": 4.6,
+   "round_trip_cost_usd": 765.12,
+   "transport_cost_week_usd": 1530.24,
+   "holding_cost_week_usd": 141.95,
+   "total_cost_week_usd": 1672.19,
+   "transport_cost_per_unit_usd": 0.0441,
+   "categories": {
+    "FOODS": 21994,
+    "HOBBIES": 5112,
+    "HOUSEHOLD": 7608
+   },
+   "revenue_2y": 5592716.85,
+   "top_skus": [
+    "FOODS_3_090 (240)",
+    "FOODS_3_252 (152)",
+    "FOODS_3_586 (139)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     1814.13
+    ],
+    [
+     2,
+     1672.19
+    ],
+    [
+     3,
+     2389.99
+    ],
+    [
+     5,
+     3882.38
+    ],
+    [
+     7,
+     5396.4
+    ]
+   ]
+  },
+  {
+   "store_id": "TX_1",
+   "dc_id": "TX",
+   "city": "Houston",
+   "latitude": 29.76,
+   "longitude": -95.37,
+   "schedule_label": "Haftada 3 (Pzt-Çrş-Cum)",
+   "optimal_deliveries_per_week": 3,
+   "trips_per_week": 3,
+   "weekly_qty": 42056,
+   "weekly_value_usd": 138183.43,
+   "distance_km": 281.9,
+   "duration_hours": 3.2,
+   "round_trip_cost_usd": 555.68,
+   "transport_cost_week_usd": 1667.04,
+   "holding_cost_week_usd": 110.72,
+   "total_cost_week_usd": 1777.76,
+   "transport_cost_per_unit_usd": 0.0396,
+   "categories": {
+    "FOODS": 25733,
+    "HOBBIES": 4342,
+    "HOUSEHOLD": 11981
+   },
+   "revenue_2y": 6953763.91,
+   "top_skus": [
+    "FOODS_3_586 (427)",
+    "FOODS_3_090 (421)",
+    "FOODS_3_681 (393)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     1999.21
+    ],
+    [
+     2,
+     2388.81
+    ],
+    [
+     3,
+     1777.76
+    ],
+    [
+     5,
+     2844.83
+    ],
+    [
+     7,
+     3937.21
+    ]
+   ]
+  },
+  {
+   "store_id": "TX_2",
+   "dc_id": "TX",
+   "city": "Dallas",
+   "latitude": 32.78,
+   "longitude": -96.8,
+   "schedule_label": "Haftada 3 (Pzt-Çrş-Cum)",
+   "optimal_deliveries_per_week": 3,
+   "trips_per_week": 3,
+   "weekly_qty": 49173,
+   "weekly_value_usd": 163720.38,
+   "distance_km": 390.2,
+   "duration_hours": 4.3,
+   "round_trip_cost_usd": 769.14,
+   "transport_cost_week_usd": 2307.42,
+   "holding_cost_week_usd": 131.19,
+   "total_cost_week_usd": 2438.61,
+   "transport_cost_per_unit_usd": 0.0469,
+   "categories": {
+    "FOODS": 30963,
+    "HOBBIES": 5405,
+    "HOUSEHOLD": 12805
+   },
+   "revenue_2y": 8492783.06,
+   "top_skus": [
+    "FOODS_3_586 (656)",
+    "FOODS_3_090 (499)",
+    "FOODS_3_252 (452)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     2700.98
+    ],
+    [
+     2,
+     3273.34
+    ],
+    [
+     3,
+     2438.61
+    ],
+    [
+     5,
+     3924.41
+    ],
+    [
+     7,
+     5440.2
+    ]
+   ]
+  },
+  {
+   "store_id": "TX_3",
+   "dc_id": "TX",
+   "city": "San Antonio",
+   "latitude": 29.42,
+   "longitude": -98.49,
+   "schedule_label": "Haftada 3 (Pzt-Çrş-Cum)",
+   "optimal_deliveries_per_week": 3,
+   "trips_per_week": 3,
+   "weekly_qty": 48736,
+   "weekly_value_usd": 166193.86,
+   "distance_km": 51.0,
+   "duration_hours": 0.7,
+   "round_trip_cost_usd": 100.54,
+   "transport_cost_week_usd": 301.62,
+   "holding_cost_week_usd": 133.17,
+   "total_cost_week_usd": 434.79,
+   "transport_cost_per_unit_usd": 0.0062,
+   "categories": {
+    "FOODS": 30727,
+    "HOBBIES": 5457,
+    "HOUSEHOLD": 12552
+   },
+   "revenue_2y": 8530000.25,
+   "top_skus": [
+    "FOODS_3_090 (522)",
+    "FOODS_3_586 (507)",
+    "FOODS_3_377 (358)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     701.12
+    ],
+    [
+     2,
+     601.91
+    ],
+    [
+     3,
+     434.79
+    ],
+    [
+     5,
+     582.6
+    ],
+    [
+     7,
+     760.85
+    ]
+   ]
+  },
+  {
+   "store_id": "WI_1",
+   "dc_id": "WI",
+   "city": "Milwaukee",
+   "latitude": 43.04,
+   "longitude": -87.91,
+   "schedule_label": "Haftada 3 (Pzt-Çrş-Cum)",
+   "optimal_deliveries_per_week": 3,
+   "trips_per_week": 3,
+   "weekly_qty": 46957,
+   "weekly_value_usd": 147982.19,
+   "distance_km": 99.3,
+   "duration_hours": 1.5,
+   "round_trip_cost_usd": 197.86,
+   "transport_cost_week_usd": 593.58,
+   "holding_cost_week_usd": 118.58,
+   "total_cost_week_usd": 712.16,
+   "transport_cost_per_unit_usd": 0.0126,
+   "categories": {
+    "FOODS": 31466,
+    "HOBBIES": 5498,
+    "HOUSEHOLD": 9993
+   },
+   "revenue_2y": 7559930.39,
+   "top_skus": [
+    "FOODS_3_226 (302)",
+    "FOODS_3_090 (202)",
+    "FOODS_3_702 (189)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     949.31
+    ],
+    [
+     2,
+     969.3
+    ],
+    [
+     3,
+     712.16
+    ],
+    [
+     5,
+     1060.45
+    ],
+    [
+     7,
+     1435.84
+    ]
+   ]
+  },
+  {
+   "store_id": "WI_2",
+   "dc_id": "WI",
+   "city": "Madison",
+   "latitude": 43.07,
+   "longitude": -89.4,
+   "schedule_label": "Hafta içi her gün",
+   "optimal_deliveries_per_week": 5,
+   "trips_per_week": 5,
+   "weekly_qty": 65778,
+   "weekly_value_usd": 197602.34,
+   "distance_km": 66.5,
+   "duration_hours": 1.0,
+   "round_trip_cost_usd": 132.44,
+   "transport_cost_week_usd": 662.2,
+   "holding_cost_week_usd": 95.0,
+   "total_cost_week_usd": 757.2,
+   "transport_cost_per_unit_usd": 0.0101,
+   "categories": {
+    "FOODS": 47380,
+    "HOBBIES": 4301,
+    "HOUSEHOLD": 14097
+   },
+   "revenue_2y": 8898599.11,
+   "top_skus": [
+    "FOODS_2_360 (700)",
+    "FOODS_3_070 (461)",
+    "FOODS_1_096 (444)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     1004.77
+    ],
+    [
+     2,
+     767.26
+    ],
+    [
+     3,
+     952.98
+    ],
+    [
+     5,
+     757.2
+    ],
+    [
+     7,
+     994.94
+    ]
+   ]
+  },
+  {
+   "store_id": "WI_3",
+   "dc_id": "WI",
+   "city": "Green Bay",
+   "latitude": 44.51,
+   "longitude": -88.01,
+   "schedule_label": "Haftada 3 (Pzt-Çrş-Cum)",
+   "optimal_deliveries_per_week": 3,
+   "trips_per_week": 3,
+   "weekly_qty": 49052,
+   "weekly_value_usd": 146494.05,
+   "distance_km": 154.2,
+   "duration_hours": 2.0,
+   "round_trip_cost_usd": 307.21,
+   "transport_cost_week_usd": 921.63,
+   "holding_cost_week_usd": 117.38,
+   "total_cost_week_usd": 1039.01,
+   "transport_cost_per_unit_usd": 0.0188,
+   "categories": {
+    "FOODS": 34125,
+    "HOBBIES": 4189,
+    "HOUSEHOLD": 10738
+   },
+   "revenue_2y": 6587712.64,
+   "top_skus": [
+    "FOODS_3_090 (638)",
+    "FOODS_3_681 (411)",
+    "FOODS_3_226 (404)"
+   ],
+   "cost_curve": [
+    [
+     1,
+     1273.78
+    ],
+    [
+     2,
+     1404.91
+    ],
+    [
+     3,
+     1039.01
+    ],
+    [
+     5,
+     1606.48
+    ],
+    [
+     7,
+     2200.78
+    ]
+   ]
+  }
+ ],
+ "totals": {
+  "hub_trucks": 27,
+  "hub_cost": 91728.14,
+  "weekly_qty": 519616,
+  "store_trips": 32,
+  "store_cost": 17043.05,
+  "network_km": 7296.7
+ },
+ "generated_from": "dbt marts: mart_hub_supply_plan, mart_delivery_plan, mart_sku_abc_xyz, fct_route"
+}

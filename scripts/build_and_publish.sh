@@ -13,3 +13,4 @@ mv -f "$ROOT/data/warehouse/.dc_planning.tmp" "$ROOT/data/warehouse/dc_planning.
 echo "published: $ROOT/data/warehouse/dc_planning.duckdb"
 cp "$ROOT/dbt/target/index.html" "$ROOT/dbt/target/manifest.json" "$ROOT/dbt/target/catalog.json" "$ROOT/superset/dbt-docs/"
 echo "dbt docs published to superset/dbt-docs/"
+"$ROOT/.venv/bin/python" "$ROOT/superset/build_map.py"

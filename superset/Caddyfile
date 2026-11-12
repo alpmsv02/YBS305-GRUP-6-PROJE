@@ -4,6 +4,10 @@ wallmart.duckdns.org {
         format json
     }
     encode gzip
+    handle_path /map/* {
+        root * /srv/map
+        file_server
+    }
     handle_path /dbt-docs/* {
         root * /srv/dbt-docs
         file_server

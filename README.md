@@ -7,6 +7,7 @@ Bölüm 1: Veri → dbt ETL → Dashboard
 |---|---|
 | **Canlı dashboard** | https://wallmart.duckdns.org/superset/dashboard/dc-planning/ |
 | **dbt docs** | https://wallmart.duckdns.org/dbt-docs/ |
+| **Lojistik ağı haritası** | https://wallmart.duckdns.org/map/ |
 | **Veri sözlüğü** | [docs/veri_sozlugu.md](docs/veri_sozlugu.md) |
 
 ## 1. İş problemi
@@ -98,7 +99,7 @@ Sekmeler (filtreler: Dağıtım Merkezi, Kategori, Mağaza, Depo Bölgesi, Tarih
 1. **Genel Bakış** – ağ KPI'ları (toplam ciro, adet, SKU sayısı, haftalık sevkiyat ihtiyacı, haftalık tır sayısı), DC bazında haftalık ciro, mağaza karşılaştırması, kategori/departman ağaç haritası.
 2. **Depo Yerleşimi** – seçilen depo seviyesi (hub veya bölgesel DC) için ABC × XYZ ısı haritası, bölge başına SKU sayısı ve adet/ciro payı, sınıfa göre sıfır satış günü oranı, departman × bölge, toplama sırası tablosu.
 3. **Mağaza Sevkiyatı** – mağaza × kategori önerilen haftalık sevkiyat, haftanın günü profili, gün tipi (hafta sonu / SNAP / etkinlik) ve yağış etkisi, SKU × mağaza sevkiyat planı tablosu.
-4. **Lojistik Ağı** – hub → DC haftalık tır sayısı, adet başına taşıma maliyeti ve ikmal planı tablosu (mesafe, tedarik süresi, dizel, yoldaki stok); mağaza başına optimum teslimat sıklığı, sıklığa göre maliyet eğrisi (taşıma + stok taşıma) ve mağaza teslimat planı tablosu.
+4. **Lojistik Ağı** – **interaktif ağ haritası** (Leaflet + OpenStreetMap: hub → DC → mağaza hatları, tıklanabilir kartlar, [tam ekran](https://wallmart.duckdns.org/map/)), hub → DC haftalık tır sayısı, adet başına taşıma maliyeti ve ikmal planı tablosu (mesafe, tedarik süresi, dizel, yoldaki stok); mağaza başına optimum teslimat sıklığı, sıklığa göre maliyet eğrisi (taşıma + stok taşıma) ve mağaza teslimat planı tablosu.
 
 Depo Yerleşimi sekmesinde "Mağaza" ve "Tarih Aralığı" filtreleri kapsam dışıdır: ABC/XYZ sınıfı depo seviyesinde (hub veya DC toplamı) ve sabit 52 haftalık pencerede hesaplanır. Superset arayüzü İngilizce sayı biçimi kullanır (80.0%, $37.6M).
 
@@ -142,7 +143,7 @@ docker compose exec superset superset fab create-admin --username admin ...   # 
 │  ├─ scripts/        fetch_weather.py, fetch_routes.py, fetch_diesel.py
 │  └─ warehouse/      DuckDB dosyaları (git'e dahil değil)
 ├─ dbt/               dbt projesi (models/, seeds/, tests/, profiles.yml)
-├─ superset/          docker-compose.yml, Dockerfile, Caddyfile, bootstrap_dashboard.py, verify_charts.py, dashboard_export/
+├─ superset/          docker-compose.yml, Dockerfile, Caddyfile, bootstrap_dashboard.py, verify_charts.py, build_map.py, map/, branding/, dashboard_export/
 ├─ scripts/           build_and_publish.sh
 ├─ docs/              veri_sozlugu.md, ekran görüntüleri
 ├─ model/             (Bölüm 2) talep tahmin modeli
