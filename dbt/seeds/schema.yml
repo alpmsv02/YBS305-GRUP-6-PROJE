@@ -1,0 +1,54 @@
+version: 2
+
+seeds:
+  - name: cost_params
+    description: "Lojistik ve stok maliyeti hesaplamalarında kullanılan temel parametreler ve varsayımlar."
+    columns:
+      - name: parameter
+        description: "Maliyet parametresinin benzersiz teknik adı (anahtar)."
+        tests: [unique, not_null]
+      - name: value
+        description: "Parametrenin sayısal değeri."
+        tests: [not_null]
+      - name: unit
+        description: "Parametrenin ölçü birimi (örn. mil, galon, oran, gün)."
+      - name: description
+        description: "Parametrenin neyi ifade ettiğine dair açıklama ve kaynak bilgisi."
+
+  - name: dc_locations
+    description: "Dağıtım merkezleri (Merkez HUB ve bölgesel RDC'ler) lokasyon ve künye bilgileri."
+    columns:
+      - name: dc_id
+        description: "Dağıtım merkezinin benzersiz kodu (HUB, CA, TX, WI)."
+        tests: [unique, not_null]
+      - name: dc_name
+        description: "Dağıtım merkezinin tam adı."
+      - name: dc_level
+        description: "Lojistik ağdaki kademesi (Merkez HUB veya Bölgesel Dağıtım Merkezi)."
+      - name: walmart_dc_number
+        description: "Gerçek Walmart dağıtım merkezi tesis numarası."
+      - name: city
+        description: "Bulunduğu şehir."
+      - name: state_id
+        description: "Bulunduğu eyalet kodu."
+      - name: latitude
+        description: "Coğrafi enlem koordinatı."
+      - name: longitude
+        description: "Coğrafi boylam koordinatı."
+      - name: source_note
+        description: "Verinin kaynağı veya varsayım notu."
+
+  - name: store_locations
+    description: "M5 veri setindeki 10 mağazanın varsayılan coğrafi konum bilgileri."
+    columns:
+      - name: store_id
+        description: "Mağazanın benzersiz kimlik kodu (örn. CA_1, TX_1)."
+        tests: [unique, not_null]
+      - name: state_id
+        description: "Mağazanın eyalet kodu."
+      - name: city
+        description: "Mağaza için atanan şehir adı."
+      - name: latitude
+        description: "Coğrafi enlem koordinatı."
+      - name: longitude
+        description: "Coğrafi boylam koordinatı."
