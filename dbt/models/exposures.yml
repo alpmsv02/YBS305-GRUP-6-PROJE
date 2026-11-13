@@ -1,0 +1,18 @@
+version: 2
+
+exposures:
+  - name: dc_planning_dashboard
+    label: "Walmart DC Planning & Replenishment Dashboard"
+    type: dashboard
+    url: https://wallmart.duckdns.org/superset/dashboard/dc-planning/
+    description: "Dağıtım merkezi yerleşimi, mağaza sevkiyat planı, ABC/XYZ analizi ve lojistik maliyet optimizasyonunu gösteren Superset yönetim paneli."
+    depends_on:
+      - ref('mart_sku_abc_xyz')
+      - ref('mart_store_replenishment')
+      - ref('mart_delivery_options')
+      - ref('mart_delivery_plan')
+      - ref('mart_hub_supply_plan')
+      - ref('mart_calendar_effects')
+    owner:
+      name: "YBS Group 6"
+      email: "askarkhonovi21@29mayis.edu.tr"
