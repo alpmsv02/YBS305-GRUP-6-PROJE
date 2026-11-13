@@ -1,3 +1,4 @@
+cat << 'EOF' > dbt/models/marts/schema.yml
 version: 2
 
 models:
@@ -5,8 +6,12 @@ models:
     description: "Ürün boyutu (SKU, departman, kategori)."
     columns:
       - name: item_id
+        description: "Ürünün benzersiz stok takip kodu (SKU)."
         tests: [unique, not_null]
+      - name: dept_id
+        description: "Ürünün bağlı olduğu alt departman kodu."
       - name: cat_id
+        description: "Ürünün yer aldığı ana ürün kategorisi (FOODS, HOBBIES, HOUSEHOLD)."
         tests:
           - accepted_values:
               values: ["FOODS", "HOBBIES", "HOUSEHOLD"]
@@ -15,7 +20,45 @@ models:
     description: "Mağaza boyutu; şehir/konum bilgisi varsayımdır (M5 mağazaları anonimdir)."
     columns:
       - name: store_id
+        description: "Mağazanın benzersiz kimlik kodu."
         tests: [unique, not_null]
+      - name: dc_id
+        description: "Mağazanın bağlı olduğu bölgesel dağıtım merkezi kodu."
+      - name: state_id
+        description: "Mağazanın bulunduğu eyalet kodu (CA, TX, WI)."
+      - name: city
+        description: "Mağaza için varsayılan olarak atanan şehir adı."
+      - name: latitude
+        description: "Mağaza konumunun coğrafi enlem derecesi."
+      - name: longitude
+        description: "Mağaza konumunun coğrafi boylam derecesi."
+
+  - name: dim_dc
+    description: "Dağıtım merkezi boyutu: merkez hub (Bentonville, varsayım) ve 3 bölgesel DC (gerçek Walmart RDC konumları)."
+    columns:
+      - name: dc_id
+        description: "Dağıtım merkezinin benzersiz kimlik kodu (HUB, CA, TX, WI)."
+        tests:
+          - unique
+          - not_null
+          - accepted_values:
+              values: ["HUB", "CA", "TX", "WI"]
+      - name: dc_name
+        description: "Dağıtım merkezinin tam adı."
+      - name: dc_level
+        description: "Merkezin lojistik ağdaki hiyerarşik seviyesi (Merkez HUB veya Bölgesel RDC)."
+      - name: walmart_dc_number
+        description: "Bölgesel deponun gerçek Walmart dağıtım merkezi numarası."
+      - name: city
+        description: "Dağıtım merkezinin bulunduğu şehir."
+      - name: state_id
+        description: "Dağıtım merkezinin bulunduğu eyalet kodu."
+      - name: latitude
+        description: "Dağıtım merkezinin coğrafi enlem koordinatı."
+      - name: longitude
+        description: "Dağıtım merkezinin coğrafi boylam koordinatı."
+      - name: source_note
+        description: "Konum bilgisinin veri kaynağı ve varsayım açıklaması."
 
   - name: fct_sales_daily
     description: "Günlük satış olgu tablosu: SKU × mağaza × gün; fiyat, ciro, takvim ve hava durumu bayrakları."
@@ -24,28 +67,92 @@ models:
           combination_of_columns: [date_day, store_id, item_id]
     columns:
       - name: date_day
+        description: "Satışın gerçekleştiği takvim tarihi."
         tests: [not_null]
+      - name: wm_yr_wk
+        description: "Cumartesi günü başlayan Walmart yıl-hafta kodu."
+      - name: dc_id
+        description: "Mağazaya hizmet veren bölgesel dağıtım merkezi kodu."
+      - name: state_id
+        description: "Mağazanın yer aldığı eyalet kodu."
       - name: store_id
+        description: "Satışın yapıldığı mağazanın kimlik kodu."
         tests:
           - not_null
           - relationships:
               to: ref('dim_store')
               field: store_id
       - name: item_id
+        description: "Satılan ürünün benzersiz SKU kodu."
         tests:
           - not_null
           - relationships:
               to: ref('dim_product')
               field: item_id
+      - name: dept_id
+        description: "Ürünün ait olduğu departman kodu."
+      - name: cat_id
+        description: "Ürünün ait olduğu ana kategori kodu."
       - name: sales_qty
+        description: "İlgili günde satılan toplam ürün adedi."
         tests: [not_null]
+      - name: sell_price
+        description: "Ürünün ilgili haftadaki birim satış fiyatı (USD)."
+      - name: revenue
+        description: "Günlük satış adedi ile birim fiyatın çarpımından elde edilen toplam ciro (USD)."
+      - name: weekday_name
+        description: "Haftanın gün adı."
+      - name: weekday_num
+        description: "M5 takvim kuralına göre haftanın gün sırası (1=Cumartesi, 7=Cuma)."
+      - name: weekday_label
+        description: "Grafiklerde doğru sıralama için sayı ön eki eklenmiş gün etiketi."
+      - name: is_weekend
+        description: "Günün hafta sonuna denk gelip gelmediğini gösteren bayrak."
+      - name: is_event
+        description: "İlgili günde özel bir etkinlik veya tatil olup olmadığını belirten bayrak."
+      - name: event_type
+        description: "Özel gün veya etkinliğin türü (Spor, Kültürel, Ulusal, Dinî)."
+      - name: event_name
+        description: "İlgili gündeki özel etkinliğin veya bayramın adı."
+      - name: is_snap
+        description: "Mağazanın bulunduğu eyalette o gün SNAP gıda yardımı ödemesi yapılıp yapılmadığını gösteren bayrak."
+      - name: temp_mean_c
+        description: "Mağaza bölgesindeki günlük ortalama hava sıcaklığı (°C)."
+      - name: precipitation_mm
+        description: "Mağaza bölgesindeki günlük toplam yağış miktarı (mm)."
+      - name: is_rainy
+        description: "Günlük yağış miktarının 1 mm ve üzerinde (yağışlı) olup olmadığını gösteren bayrak."
 
   - name: fct_sales_weekly
     description: "Haftalık satış olgu tablosu: SKU × mağaza × hafta. is_complete_week: haftanın 7 günü de veride var."
     columns:
-      - name: is_complete_week
-        tests: [not_null]
+      - name: wm_yr_wk
+        description: "Walmart takvimine göre yıl ve hafta kodu."
+      - name: week_start
+        description: "İlgili haftanın başlangıç tarihi."
+      - name: dc_id
+        description: "Mağazanın bağlı olduğu bölgesel dağıtım merkezi kodu."
+      - name: state_id
+        description: "Mağazanın bulunduğu eyalet kodu."
+      - name: store_id
+        description: "Mağazanın benzersiz kimlik kodu."
+      - name: item_id
+        description: "Ürünün benzersiz stok kodu (SKU)."
+      - name: dept_id
+        description: "Ürünün bağlı olduğu departman kodu."
+      - name: cat_id
+        description: "Ürünün bağlı olduğu ana kategori kodu."
       - name: units
+        description: "Hafta boyunca gerçekleşen toplam satış adedi."
+        tests: [not_null]
+      - name: revenue
+        description: "Hafta boyunca elde edilen toplam satış cirosu (USD)."
+      - name: zero_days
+        description: "Hafta içinde ürünün hiç satılmadığı (sıfır satış) gün sayısı."
+      - name: days_in_week
+        description: "İlgili hafta için veri setinde bulunan toplam gün sayısı."
+      - name: is_complete_week
+        description: "Haftanın tüm 7 gününün veride eksiksiz yer alıp almadığını belirten doğrulama bayrağı."
         tests: [not_null]
 
   - name: mart_sku_abc_xyz
@@ -55,27 +162,57 @@ models:
           combination_of_columns: [dc_id, item_id]
     columns:
       - name: dc_id
+        description: "Analizin yapıldığı dağıtım merkezi kodu (HUB veya bölgesel DC)."
         tests:
           - not_null
           - accepted_values:
               values: ["HUB", "CA", "TX", "WI"]
+      - name: dc_name
+        description: "Dağıtım merkezinin adı."
       - name: item_id
+        description: "Ürünün benzersiz stok takip kodu (SKU)."
+        tests: [not_null]
+      - name: dept_id
+        description: "Ürünün ait olduğu departman kodu."
+      - name: cat_id
+        description: "Ürünün ait olduğu ana kategori kodu."
+      - name: units_52w
+        description: "Son 52 tam haftadaki toplam satış adedi."
+      - name: revenue_52w
+        description: "Son 52 tam haftadaki toplam satış cirosu (USD)."
+      - name: active_weeks
+        description: "Ürünün son 52 hafta içinde aktif olarak satışta olduğu hafta sayısı."
+      - name: avg_weekly_units
+        description: "Ürünün aktif olduğu haftalardaki ortalama haftalık satış adedi."
+      - name: cv_weekly
+        description: "Haftalık talep değişkenlik katsayısı (standart sapma / ortalama)."
+      - name: zero_day_share
+        description: "İncelenen dönem içinde sıfır satış gerçekleşen günlerin oranı (0 ile 1 arası)."
+      - name: cum_revenue_share
+        description: "Depo bazında ciroya göre büyükten küçüğe sıralandığında oluşan kümülatif ciro payı."
+      - name: picking_rank
+        description: "Depo içinde satış adedine göre ürün toplama öncelik sırası (1 = en yüksek hacimli ürün)."
         tests: [not_null]
       - name: abc_class
+        description: "Kümülatif ciro payına göre ABC sınıfı (A: ilk %80, B: %80-%95, C: son %5)."
         tests:
           - accepted_values:
               values: ["A", "B", "C"]
       - name: xyz_class
+        description: "Talep değişkenliğine (CV) göre öngörülebilirlik sınıfı (X: düzenli, Y: değişken, Z: düzensiz)."
         tests:
           - accepted_values:
               values: ["X", "Y", "Z"]
+      - name: abc_xyz
+        description: "Ürünün ABC ve XYZ sınıflarının birleştirilmiş matris kodu (ör. AX, BY, CZ)."
       - name: warehouse_zone
+        description: "Ürün devir ve sirkülasyon hızına göre belirlenen depo içi yerleşim bölgesi (HOT = yükleme rampasına yakın hızlı dönen ürünler, WARM = orta hız, COLD = uzak raflardaki yavaş dönen ürünler)."
         tests:
           - not_null
           - accepted_values:
               values: ["HOT", "WARM", "COLD"]
-      - name: picking_rank
-        tests: [not_null]
+      - name: zone_label
+        description: "Görselleştirmelerde sıralama amacıyla kullanılan numaralı depo bölgesi etiketi (1. HOT, 2. WARM, 3. COLD)."
 
   - name: mart_store_replenishment
     description: "Mağaza sevkiyat planı: SKU × mağaza için önerilen haftalık sevkiyat miktarı ve emniyet stoku (bölgesel DC → mağaza)."
@@ -83,34 +220,65 @@ models:
       - dbt_utils_free_unique_combination:
           combination_of_columns: [store_id, item_id]
     columns:
-      - name: warehouse_zone
-        description: "Ürünün depoda yer aldığı sıcaklık veya kategori bölgesi (HOT/WARM/COLD)."
-        tests: [not_null]
-      - name: recommended_weekly_qty
-        description: "Mağazaya gönderilmesi önerilen haftalık toplam sevkiyat miktarı."
-        tests: [not_null]
       - name: store_id
         description: "Sevkiyatın yapılacağı mağazanın benzersiz kimlik numarası."
         tests:
           - relationships:
               to: ref('dim_store')
               field: store_id
+      - name: dc_id
+        description: "Mağazayı besleyen bölgesel dağıtım merkezi kodu."
+      - name: state_id
+        description: "Mağazanın bulunduğu eyalet kodu."
+      - name: item_id
+        description: "Sevk edilecek ürünün SKU kodu."
+      - name: dept_id
+        description: "Ürünün departman kodu."
+      - name: cat_id
+        description: "Ürünün ana kategori kodu."
+      - name: avg_weekly_units
+        description: "Son 13 tam haftadaki ortalama haftalık talep miktarı."
+      - name: std_weekly_units
+        description: "Son 13 tam haftadaki haftalık talebin standart sapması."
+      - name: max_weekly_units
+        description: "Son 13 tam hafta içinde gözlemlenen en yüksek haftalık satış adedi."
+      - name: units_13w
+        description: "Son 13 tam haftadaki toplam satış adedi."
+      - name: avg_unit_price
+        description: "Son 13 haftalık toplam cironun toplam adede bölünmesiyle bulunan ortalama birim fiyat (USD)."
+      - name: safety_stock
+        description: "%95 hizmet seviyesi ve 1 haftalık tedarik süresine göre hesaplanan emniyet stoku adedi."
+      - name: recommended_weekly_qty
+        description: "Ortalama talep ve emniyet stoku toplamına dayanan önerilen haftalık sevkiyat miktarı."
+        tests: [not_null]
+      - name: abc_class
+        description: "Ürünün bağlı olduğu bölgesel depodaki ABC ciro sınıfı."
+      - name: xyz_class
+        description: "Ürünün bağlı olduğu bölgesel depodaki XYZ talep düzenliliği sınıfı."
+      - name: warehouse_zone
+        description: "Ürünün bölgesel depodaki sirkülasyon hızına göre yerleşim bölgesi (HOT: hızlı dönen / rampaya yakın, WARM: orta, COLD: yavaş dönen / uzak raf)."
+        tests: [not_null]
 
   - name: mart_calendar_effects
     description: "Kategori × gün tipi × hava tipi bazında talep artışı (lift)."
     columns:
-      - name: lift_vs_baseline
-        tests: [not_null]
-
-  - name: dim_dc
-    description: "Dağıtım merkezi boyutu: merkez hub (Bentonville, varsayım) ve 3 bölgesel DC (gerçek Walmart RDC konumları)."
-    columns:
       - name: dc_id
-        tests:
-          - unique
-          - not_null
-          - accepted_values:
-              values: ["HUB", "CA", "TX", "WI"]
+        description: "İlgili bölgesel dağıtım merkezi kodu."
+      - name: cat_id
+        description: "Analiz edilen ana ürün kategorisi."
+      - name: day_type
+        description: "Günün takvimsel niteliği (Hafta içi, Hafta sonu, SNAP günü veya Özel etkinlik/bayram türü)."
+      - name: weather_type
+        description: "Günlük yağış durumuna göre hava tipi (Kuru veya Yağışlı ≥ 1 mm)."
+      - name: n_days
+        description: "İlgili koşulun gözlemlendiği toplam gün sayısı."
+      - name: avg_units_per_sku
+        description: "Bu gün ve hava tipinde SKU başına düşen ortalama günlük satış adedi."
+      - name: baseline_units
+        description: "Referans alınan kuru hafta içi günlerindeki SKU başına ortalama satış adedi."
+      - name: lift_vs_baseline
+        description: "Referans (kuru hafta içi) ortalamasına kıyasla oransal talep değişimi (avg / baseline - 1)."
+        tests: [not_null]
 
   - name: fct_route
     description: "Lojistik ağ bacakları (HUB→DC, DC→STORE): OSRM mesafe/süre, tedarik süresi, ATRI + dizel bazlı sefer maliyeti."
@@ -118,18 +286,65 @@ models:
       - dbt_utils_free_unique_combination:
           combination_of_columns: [origin_id, dest_id]
     columns:
-      - name: round_trip_cost_usd
-        tests: [not_null]
+      - name: origin_id
+        description: "Sevkiyatın çıkış noktası (HUB veya bölgesel DC kodu)."
+      - name: dest_id
+        description: "Sevkiyatın varış noktası (bölgesel DC veya mağaza kodu)."
       - name: leg_type
+        description: "Lojistik rota bacağının türü (HUB_TO_DC veya DC_TO_STORE)."
         tests:
           - accepted_values:
               values: ["HUB_TO_DC", "DC_TO_STORE"]
+      - name: distance_km
+        description: "OSRM üzerinden hesaplanan tek yön karayolu mesafesi (km)."
+      - name: distance_miles
+        description: "Tek yön karayolu mesafesinin mil cinsinden karşılığı."
+      - name: duration_min
+        description: "Tek yön tahmini sürüş süresi (dakika)."
+      - name: duration_hours
+        description: "Tek yön tahmini sürüş süresi (saat)."
+      - name: lead_time_days
+        description: "Sürüş süresi ve 1 günlük depo elleçleme süresini içeren toplam tedarik süresi (gün)."
+      - name: diesel_usd_gal
+        description: "Varış bölgesindeki güncel haftalık dizel yakıt fiyatı (USD/galon)."
+      - name: cost_per_mile_usd
+        description: "ATRI operasyonel maliyeti ve bölgesel dizel fiyatına göre mil başına taşıma maliyeti (USD)."
+      - name: round_trip_cost_usd
+        description: "Gidiş-dönüş toplam tır seferi maliyeti (USD)."
+        tests: [not_null]
 
   - name: mart_delivery_options
     description: "DC→mağaza teslimat sıklığı seçenekleri (haftada 1/2/3/5/7) ve maliyet bileşenleri."
     tests:
       - dbt_utils_free_unique_combination:
           combination_of_columns: [store_id, deliveries_per_week]
+    columns:
+      - name: store_id
+        description: "Teslimat yapılacak mağazanın kimlik kodu."
+      - name: dc_id
+        description: "Mağazaya hizmet veren bölgesel dağıtım merkezi kodu."
+      - name: state_id
+        description: "Mağazanın bulunduğu eyalet kodu."
+      - name: deliveries_per_week
+        description: "Değerlendirilen haftalık teslimat sıklığı senaryosu (haftada 1, 2, 3, 5 veya 7 gün)."
+      - name: weekly_qty
+        description: "Mağazaya haftalık sevk edilecek toplam ürün adedi."
+      - name: weekly_value_usd
+        description: "Mağazaya haftalık sevk edilecek ürünlerin toplam parasal değeri (USD)."
+      - name: trips_per_week
+        description: "Tır kapasitesi kısıtına göre ilgili teslimat sıklığında gereken haftalık toplam sefer sayısı."
+      - name: distance_km
+        description: "Dağıtım merkezi ile mağaza arasındaki tek yön mesafe (km)."
+      - name: duration_hours
+        description: "Dağıtım merkezi ile mağaza arasındaki tek yön sürüş süresi (saat)."
+      - name: round_trip_cost_usd
+        description: "Tek bir gidiş-dönüş tır seferinin maliyeti (USD)."
+      - name: transport_cost_week_usd
+        description: "Haftalık toplam nakliye ve sefer maliyeti (USD)."
+      - name: holding_cost_week_usd
+        description: "Teslimat sıklığına bağlı ortalama stok düzeyi üzerinden hesaplanan haftalık stok bulundurma maliyeti (USD)."
+      - name: total_cost_week_usd
+        description: "Haftalık nakliye ve stok bulundurma maliyetlerinin toplamı (USD)."
 
   - name: mart_delivery_plan
     description: "Mağaza başına toplam maliyeti en küçükleyen teslimat sıklığı ve haftalık sefer planı."
@@ -142,18 +357,44 @@ models:
           - relationships:
               to: ref('dim_store')
               field: store_id
-      - name: optimal_deliveries_per_week
-        description: "Toplam maliyetleri en aza indiren haftalık optimum teslimat sıklığı."
-        tests:
-          - accepted_values:
-              values: [1, 2, 3, 5, 7]
-              quote: false
       - name: dc_id
         description: "Mağazaya ikmal yapan bölgesel dağıtım merkezinin kimlik numarası."
         tests:
           - relationships:
               to: ref('dim_dc')
               field: dc_id
+      - name: state_id
+        description: "Mağazanın bulunduğu eyalet kodu."
+      - name: city
+        description: "Mağazanın bulunduğu şehir."
+      - name: optimal_deliveries_per_week
+        description: "Toplam maliyetleri en aza indiren haftalık optimum teslimat günü sayısı."
+        tests:
+          - accepted_values:
+              values: [1, 2, 3, 5, 7]
+              quote: false
+      - name: schedule_label
+        description: "Önerilen haftalık teslimat takvimi ve günlerinin açıklaması."
+      - name: trips_per_week
+        description: "Optimum planda haftalık yapılacak toplam tır seferi sayısı."
+      - name: weekly_qty
+        description: "Mağazaya haftalık sevk edilecek toplam ürün adedi."
+      - name: weekly_value_usd
+        description: "Haftalık sevkiyatın toplam parasal değeri (USD)."
+      - name: distance_km
+        description: "Bölgesel DC ile mağaza arasındaki tek yön mesafe (km)."
+      - name: duration_hours
+        description: "Bölgesel DC ile mağaza arasındaki tek yön sürüş süresi (saat)."
+      - name: round_trip_cost_usd
+        description: "Sefer başına gidiş-dönüş taşıma maliyeti (USD)."
+      - name: transport_cost_week_usd
+        description: "Optimum plandaki haftalık toplam taşıma maliyeti (USD)."
+      - name: holding_cost_week_usd
+        description: "Optimum plandaki haftalık toplam stok bulundurma maliyeti (USD)."
+      - name: total_cost_week_usd
+        description: "Optimize edilmiş haftalık toplam lojistik maliyet (taşıma + stok tutma, USD)."
+      - name: transport_cost_per_unit_usd
+        description: "Sevk edilen ürün birimi başına düşen ortalama taşıma maliyeti (USD/adet)."
 
   - name: mart_hub_supply_plan
     description: "Merkez hub → bölgesel DC haftalık ikmal planı: sefer sayısı, tedarik süresi, maliyet, yoldaki stok."
@@ -161,6 +402,33 @@ models:
       - name: dc_id
         description: "İkmal edilen bölgesel dağıtım merkezinin kimlik numarası."
         tests: [unique, not_null]
+      - name: dc_name
+        description: "Bölgesel dağıtım merkezinin adı."
+      - name: city
+        description: "Bölgesel dağıtım merkezinin bulunduğu şehir."
+      - name: state_id
+        description: "Bölgesel dağıtım merkezinin bulunduğu eyalet kodu."
+      - name: n_stores
+        description: "İlgili bölgesel dağıtım merkezinin hizmet verdiği mağaza sayısı."
+      - name: weekly_qty
+        description: "Bölgesel depoya bağlı tüm mağazaların haftalık toplam ürün ihtiyacı (adet)."
+      - name: weekly_value_usd
+        description: "Bölgesel depoya sevk edilen haftalık toplam ürün değeri (USD)."
+      - name: distance_km
+        description: "Merkez HUB ile bölgesel DC arasındaki tek yön karayolu mesafesi (km)."
+      - name: duration_hours
+        description: "Merkez HUB ile bölgesel DC arasındaki tek yön sürüş süresi (saat)."
+      - name: lead_time_days
+        description: "Merkez HUB'dan bölgesel DC'ye toplam tedarik süresi (gün)."
       - name: trucks_per_week
         description: "Merkez hub'dan bölgesel depoya planlanan haftalık tır seferi sayısı."
         tests: [not_null]
+      - name: round_trip_cost_usd
+        description: "HUB ile bölgesel DC arasındaki tek bir gidiş-dönüş seferinin maliyeti (USD)."
+      - name: transport_cost_week_usd
+        description: "Bölgesel DC'yi beslemek için katlanılan haftalık toplam nakliye maliyeti (USD)."
+      - name: transport_cost_per_unit_usd
+        description: "HUB'dan bölgesel DC'ye taşınan birim ürün başına düşen nakliye maliyeti (USD/adet)."
+      - name: pipeline_stock_units
+        description: "Tedarik süresi boyunca yolda (transitte) bulunan ortalama stok miktarı (adet)."
+EOF
