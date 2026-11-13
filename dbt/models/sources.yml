@@ -1,34 +1,21 @@
 version: 2
 
 sources:
-  - name: m5
-    description: "Kaggle M5 Forecasting – Accuracy veri seti (Walmart, 2011–2016). Ham CSV dosyaları data/raw altında; dbt-duckdb external_location ile doğrudan okunur."
-    tables:
-      - name: sales_wide
-        description: "Günlük satış adetleri, geniş format: her satır bir SKU×mağaza, d_1..d_1941 sütunları günler."
-        meta:
-          external_location: "read_csv('../data/raw/sales_train_evaluation.csv', header=true)"
-      - name: calendar
-        description: "Takvim: tarih, Walmart haftası (wm_yr_wk), etkinlikler, SNAP günleri."
-        meta:
-          external_location: "read_csv('../data/raw/calendar.csv', header=true)"
-      - name: sell_prices
-        description: "SKU×mağaza×hafta bazında satış fiyatı."
-        meta:
-          external_location: "read_csv('../data/raw/sell_prices.csv', header=true)"
-
   - name: external
-    description: "Dış veri kaynağı: Open-Meteo Historical Weather API (data/scripts/fetch_weather.py ile çekildi)."
+    description: "Dış kaynaklı ham veriler: hava durumu (Open-Meteo) ve dizel fiyatları (FRED/EIA)."
+    freshness:
+      warn_after: {count: 30, period: day}
+      error_after: {count: 90, period: day}
     tables:
       - name: weather
-        description: "10 mağaza için varsayılan şehirlerin günlük hava durumu (sıcaklık, yağış)."
-        meta:
-          external_location: "read_csv('../data/external/weather.csv', header=true)"
-      - name: routes
-        description: "OSRM (OpenStreetMap) yol mesafesi ve sürüş süresi matrisi: hub, bölgesel DC'ler ve mağazalar arası (data/scripts/fetch_routes.py)."
-        meta:
-          external_location: "read_csv('../data/external/routes.csv', header=true)"
+        description: "Mağaza bölge bazlı günlük hava durumu verileri."
+        loaded_at_field: date_day
+        freshness:
+          warn_after: {count: 7, period: day}
+          error_after: {count: 30, period: day}
       - name: diesel_prices
-        description: "EIA haftalık dizel fiyatları (FRED üzerinden): ABD, Gulf Coast (TX), Midwest (WI); CA için ABD ortalaması (data/scripts/fetch_diesel.py)."
-        meta:
-          external_location: "read_csv('../data/external/diesel_prices.csv', header=true)"
+        description: "Bölgesel haftalık dizel yakıt fiyatları."
+        loaded_at_field: week_date
+        freshness:
+          warn_after: {count: 14, period: day}
+          error_after: {count: 60, period: day}
